@@ -16,7 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      {/* eslint-disable-next-line better-tailwindcss/no-unregistered-classes */}
+      <body className="using-mouse">
         <ThemeProvider>
           {children}
         </ThemeProvider>
