@@ -1,0 +1,17 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+
+import { routes } from "@/frontend/routes";
+
+export function NotFound() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.warn("Not Found: Redirecting to home page");
+    navigate({
+      pathname: routes.$path(),
+    });
+  }, [navigate]);
+
+  return null;
+}
