@@ -56,16 +56,8 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4">
-        {!isAuthenticated
+        {isAuthenticated
           ? (
-              <Button variant="ghost" className="w-full justify-start gap-2" asChild>
-                <Link to={routes.signIn.$path()}>
-                  <LogIn className="h-4 w-4" />
-                  <span>Sign In</span>
-                </Link>
-              </Button>
-            )
-          : (
               <SignOutButton>
                 <Button
                   type="button"
@@ -76,6 +68,14 @@ export function AppSidebar() {
                   <span>Sign Out</span>
                 </Button>
               </SignOutButton>
+            )
+          : (
+              <Button variant="ghost" className="w-full justify-start gap-2" asChild>
+                <Link to={routes.signIn.$path()}>
+                  <LogIn className="h-4 w-4" />
+                  <span>Sign In</span>
+                </Link>
+              </Button>
             )}
       </SidebarFooter>
     </Sidebar>
