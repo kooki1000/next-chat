@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-separator": "^1.1.7",
@@ -40,6 +41,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@next/eslint-plugin-next": "^15.3.5",
     "@tailwindcss/postcss": "^4.1.11",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20.19.6",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
