@@ -1,3 +1,4 @@
+import { SignUp } from "@clerk/nextjs";
 import { useNetworkState } from "@uidotdev/usehooks";
 import {
   Brain,
@@ -91,7 +92,7 @@ export function SignUpPage() {
 
         {/* Sign Up Form */}
         <main className="flex flex-1 items-center justify-center p-8">
-          <div>Sign Up Page</div>
+          <SignUp />
         </main>
       </div>
     </div>

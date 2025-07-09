@@ -1,3 +1,4 @@
+import { SignOutButton, useUser } from "@clerk/nextjs";
 import {
   LogIn,
   LogOut,
@@ -22,8 +23,7 @@ import { routes } from "@/frontend/routes";
 import { ThreadList } from "./ThreadList";
 
 export function AppSidebar() {
-  const isAuthenticated = false;
-
+  const { isSignedIn: isAuthenticated } = useUser();
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4">
@@ -66,17 +66,16 @@ export function AppSidebar() {
               </Button>
             )
           : (
-              <Button
-                type="button"
-                onClick={() => {
-                  console.error("Sign out not implemented yet");
-                }}
-                variant="ghost"
-                className="w-full justify-start gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Sign Out</span>
-              </Button>
+              <SignOutButton>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </Button>
+              </SignOutButton>
             )}
       </SidebarFooter>
     </Sidebar>
