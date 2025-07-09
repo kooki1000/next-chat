@@ -1,17 +1,22 @@
+import { useUser } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
 import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
 
 import { routes } from "@/frontend/routes";
+import { useSyncRouter } from "@/hooks/use-sync-router";
 
 import { TopNavigation } from "./components/TopNavigation";
 
 export function AuthLayout() {
+  useSyncRouter();
+
   const navigate = useNavigate();
+  const { isSignedIn: isAuthenticated, isLoaded } = useUser();
 
-  const isAuthenticated = false;
-  const isLoading = false;
+  const isLoading = !isLoaded;
 
+  // Redirect authenticated users
   useEffect(() => {
     if (isAuthenticated) {
       navigate(

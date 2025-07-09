@@ -1,3 +1,4 @@
+import { SignIn } from "@clerk/nextjs";
 import { useNetworkState } from "@uidotdev/usehooks";
 import { WifiOff } from "lucide-react";
 
@@ -7,7 +8,7 @@ export function SignInPage() {
     <main className="flex flex-1 items-center justify-center">
       {isOnline
         ? (
-            <div>Sign In Page</div>
+            <SignIn />
           )
         : (
             <div className="flex flex-col gap-2 text-center">

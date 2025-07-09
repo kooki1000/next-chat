@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { ThemeProvider } from "@/providers";
+import { ClerkProvider, ThemeProvider } from "@/providers";
 
 import "@/styles.css";
 
@@ -19,7 +19,9 @@ export default function RootLayout({
       {/* eslint-disable-next-line better-tailwindcss/no-unregistered-classes */}
       <body className="using-mouse">
         <ThemeProvider>
-          {children}
+          <ClerkProvider>
+            {children}
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>
