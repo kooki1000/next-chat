@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const FrontendApp = dynamic(() => import("@/frontend/main"), {
+const FrontendApp = dynamic(() => import("@/frontend"), {
   ssr: false,
   loading: () => <div>Loading...</div>,
 });
