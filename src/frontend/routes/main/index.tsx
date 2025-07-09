@@ -1,4 +1,4 @@
-export function App() {
+export function Main() {
   return (
     <div>
       <h1>Welcome to Next.js Chat App</h1>

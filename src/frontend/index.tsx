@@ -1,15 +1,20 @@
 import React from "react";
-import { BrowserRouter } from "react-router";
+import { BrowserRouter, Route, Routes } from "react-router";
 
-import { Providers } from "@/providers";
-import { App } from "./App";
+import { routes } from "./routes";
+import { Main } from "./routes/main";
+import { NotFound } from "./routes/not-found";
 
 export default function FrontendRoot() {
   return (
     <BrowserRouter>
-      <Providers>
-        <App />
-      </Providers>
+      <Routes>
+        <Route path={routes.$path()} element={<Main />} />
+        <Route
+          path={routes.notFound.$path()}
+          element={<NotFound />}
+        />
+      </Routes>
     </BrowserRouter>
   );
 }

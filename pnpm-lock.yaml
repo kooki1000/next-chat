@@ -32,6 +32,9 @@ importers:
       react-router:
         specifier: ^7.6.3
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-router-typesafe-routes:
+        specifier: ^2.1.0
+        version: 2.1.0(react-router@7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(zod@3.25.76)
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1
@@ -2165,6 +2168,20 @@ packages:
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
       react: ^19.1.0
+
+  react-router-typesafe-routes@2.1.0:
+    resolution: {integrity: sha512-gXA3EoecECYYpWz3gqi+83C2GbjsPqO/ryGvmFa2xL8/oQ1L7Vqes3lmfmMRiQx8NvSPZDvKzKixAOpkS5TARQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: '>=18'
+      react-router: ^7.0.1
+      yup: ^1.0.0
+      zod: '>=3.0.0'
+    peerDependenciesMeta:
+      yup:
+        optional: true
+      zod:
+        optional: true
 
   react-router@7.6.3:
     resolution: {integrity: sha512-zf45LZp5skDC6I3jDLXQUu0u26jtuP4lEGbc7BbdyxenBN1vJSTA18czM2D+h5qyMBuMrD+9uB+mU37HIoKGRA==}
@@ -5018,6 +5035,13 @@ snapshots:
     dependencies:
       react: 19.1.0
       scheduler: 0.26.0
+
+  react-router-typesafe-routes@2.1.0(react-router@7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(zod@3.25.76):
+    dependencies:
+      react: 19.1.0
+      react-router: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+    optionalDependencies:
+      zod: 3.25.76
 
   react-router@7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
