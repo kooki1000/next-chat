@@ -15,7 +15,7 @@ export default function App() {
 function LoadingComponent() {
   return (
     <main className="flex h-screen w-screen items-center justify-center">
-      <Loader className="w-12 h-12 animate-spin text-foreground/80" />
+      <Loader className="h-12 w-12 animate-spin text-foreground/80" />
     </main>
   );
 }

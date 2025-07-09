@@ -8,9 +8,10 @@ export function NotFound() {
 
   useEffect(() => {
     console.warn("Not Found: Redirecting to home page");
-    navigate({
-      pathname: routes.$path(),
-    });
+    navigate(
+      { pathname: routes.$path() },
+      { replace: true },
+    );
   }, [navigate]);
 
   return null;

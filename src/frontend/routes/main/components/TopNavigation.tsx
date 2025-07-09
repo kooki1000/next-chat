@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
+import { routes } from "@/frontend/routes";
+
 export function TopNavigation() {
   const isAuthenticated = false;
   return (
@@ -16,7 +18,7 @@ export function TopNavigation() {
             )
           : (
               <Button variant="outline" size="sm" asChild>
-                <Link to="/sign-in">Sign In</Link>
+                <Link to={routes.signIn.$path()}>Sign In</Link>
               </Button>
             )}
       </div>

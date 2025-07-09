@@ -17,6 +17,8 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 
+import { routes } from "@/frontend/routes";
+
 import { ThreadList } from "./ThreadList";
 
 export function AppSidebar() {
@@ -29,10 +31,11 @@ export function AppSidebar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
-          <Link to="/" className="text-lg font-semibold">AI Chat App</Link>
+          <Link to={routes.$path()} className="text-lg font-semibold">AI Chat App</Link>
         </div>
 
         <Button
+          type="button"
           onClick={() => {
             console.error("New chat not implemented yet");
           }}
@@ -56,7 +59,7 @@ export function AppSidebar() {
         {!isAuthenticated
           ? (
               <Button variant="ghost" className="w-full justify-start gap-2" asChild>
-                <Link to="/sign-in">
+                <Link to={routes.signIn.$path()}>
                   <LogIn className="h-4 w-4" />
                   <span>Sign In</span>
                 </Link>
@@ -64,6 +67,7 @@ export function AppSidebar() {
             )
           : (
               <Button
+                type="button"
                 onClick={() => {
                   console.error("Sign out not implemented yet");
                 }}
