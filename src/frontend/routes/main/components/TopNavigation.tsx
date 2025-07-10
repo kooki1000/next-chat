@@ -21,9 +21,7 @@ export function TopNavigation() {
             )
           : isAuthenticated
             ? (
-                (
-                  <UserButton />
-                )
+                <UserButton />
               )
             : (
                 <Button variant="outline" size="sm" asChild>
