@@ -42,7 +42,7 @@ export function MainPage() {
   };
 
   return (
-    <main className="mx-auto flex h-full w-full max-w-4xl flex-1 flex-col items-center justify-center">
+    <div className="mx-auto flex h-full w-full max-w-4xl flex-1 flex-col items-center justify-center">
       <div className="mb-8 text-center">
         <h1 className="mb-4 text-4xl font-bold">How can I help you?</h1>
 
@@ -101,6 +101,6 @@ export function MainPage() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
