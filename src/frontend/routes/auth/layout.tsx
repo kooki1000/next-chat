@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/nextjs";
+import { useConvexAuth } from "convex/react";
 import { Loader } from "lucide-react";
 import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
@@ -12,9 +12,7 @@ export function AuthLayout() {
   useSyncRouter();
 
   const navigate = useNavigate();
-  const { isSignedIn: isAuthenticated, isLoaded } = useUser();
-
-  const isLoading = !isLoaded;
+  const { isAuthenticated, isLoading } = useConvexAuth();
 
   // Redirect authenticated users
   useEffect(() => {

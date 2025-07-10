@@ -1,4 +1,5 @@
-import { SignOutButton, useUser } from "@clerk/nextjs";
+import { SignOutButton } from "@clerk/nextjs";
+import { useConvexAuth } from "convex/react";
 import {
   LogIn,
   LogOut,
@@ -19,11 +20,10 @@ import {
 } from "@/components/ui/sidebar";
 
 import { routes } from "@/frontend/routes";
-
 import { ThreadList } from "./ThreadList";
 
 export function AppSidebar() {
-  const { isSignedIn: isAuthenticated } = useUser();
+  const { isAuthenticated } = useConvexAuth();
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4">
