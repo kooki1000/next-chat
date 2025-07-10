@@ -6,10 +6,7 @@ import type { ActionCtx, QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
-import {
-  internalMutation,
-  internalQuery,
-} from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 
 export const upsertFromClerk = internalMutation({
   args: { data: v.any() as Validator<UserJSON> },
@@ -19,10 +16,7 @@ export const upsertFromClerk = internalMutation({
       email: data.email_addresses[0]?.email_address || "",
       externalId: data.id,
       imageUrl: data.image_url || "",
-      isBanned: data.banned ?? false,
-      isLocked: data.locked ?? false,
       lastActive: data.last_active_at ?? undefined,
-      lastSignIn: data.last_sign_in_at ?? undefined,
     };
 
     const user = await userByExternalId(ctx, userAttributes.externalId);
