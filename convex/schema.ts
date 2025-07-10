@@ -29,7 +29,7 @@ export default defineSchema({
     ),
     content: v.string(),
     userId: v.optional(v.id("users")),
-    userProvidedId: v.optional(v.string()),
+    userProvidedId: v.string(),
     threadId: v.id("threads"),
     userProvidedThreadId: v.optional(v.string()),
     version: v.number(),

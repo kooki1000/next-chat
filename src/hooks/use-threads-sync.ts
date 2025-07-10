@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 
@@ -32,12 +31,8 @@ export function useThreadsSync() {
         const localThreadCount = await localDb.threads.count();
 
         if (localThreadCount === 0 || localThreadCount !== convexThreads.length) {
-          console.log("Performing initial sync of threads to IndexedDB");
-
           await localDb.threads.clear();
           await localDb.threads.bulkAdd(convexThreads);
-
-          console.log(`Synced ${convexThreads.length} threads to IndexedDB`);
         }
 
         setIsInitialSyncComplete(true);

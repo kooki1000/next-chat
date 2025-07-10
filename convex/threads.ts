@@ -20,5 +20,6 @@ async function threadsByUserId(ctx: QueryCtx, userId: Id<"users">) {
   return await ctx.db
     .query("threads")
     .withIndex("by_userId", q => q.eq("userId", userId))
+    .order("desc")
     .collect();
 }

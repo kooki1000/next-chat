@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 
@@ -32,12 +31,8 @@ export function useMessagesSync() {
         const localMessageCount = await localDb.messages.count();
 
         if (localMessageCount === 0 || localMessageCount !== convexMessages.length) {
-          console.log("Performing initial sync of messages to IndexedDB");
-
           await localDb.messages.clear();
           await localDb.messages.bulkAdd(convexMessages);
-
-          console.log(`Synced ${convexMessages.length} messages to IndexedDB`);
         }
 
         setIsInitialSyncComplete(true);
