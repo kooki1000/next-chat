@@ -22,13 +22,13 @@ export function ChatPage() {
   const inputAreaRef = useRef<InputAreaHandle>(null);
 
   useEffect(() => {
-    if (!threadId || messages?.length === 0) {
+    if (!threadId || (messages !== undefined && messages.length === 0)) {
       navigate(
         { pathname: routes.$path() },
         { replace: true },
       );
     }
-  }, [threadId, messages?.length, navigate]);
+  }, [threadId, messages, messages?.length, navigate]);
 
   // Focus the input area when the component mounts
   useEffect(() => {
