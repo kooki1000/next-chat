@@ -68,7 +68,7 @@ export function SignUpPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
                 <Sparkles className="h-4 w-4 text-white" />
               </div>
-              <span className="text-xl font-semibold">AI Chat App</span>
+              <span className="text-xl font-semibold">Next Chat</span>
             </div>
 
             <div className="space-y-6">

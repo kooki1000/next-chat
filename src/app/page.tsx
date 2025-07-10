@@ -16,6 +16,7 @@ function LoadingComponent() {
   return (
     <main className="flex h-screen w-screen items-center justify-center">
       <Loader className="h-12 w-12 animate-spin text-foreground/80" />
+      <span className="sr-only">Loading...</span>
     </main>
   );
 }
