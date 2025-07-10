@@ -8,20 +8,19 @@ import { localDb } from "@/db/dexie";
  */
 export function useLocalMessages(options?: {
   threadId?: string;
-  userProvidedThreadId?: string;
   limit?: number;
 }) {
-  const { threadId, userProvidedThreadId, limit } = options || {};
+  const { threadId, limit } = options || {};
 
   return useLiveQuery(async () => {
     let query = localDb.messages.toCollection();
 
     if (threadId) {
-      query = query.filter(message => message.threadId === threadId);
-    }
-
-    if (userProvidedThreadId) {
-      query = query.filter(message => message.userProvidedThreadId === userProvidedThreadId);
+      // Filter messages where either threadId or userProvidedThreadId matches the provided ID
+      query = query.filter(message =>
+        message.threadId === threadId
+        || message.userProvidedThreadId === threadId,
+      );
     }
 
     // Sort by createdAt in ascending order (oldest first)
@@ -32,5 +31,5 @@ export function useLocalMessages(options?: {
     }
 
     return messages;
-  }, [threadId, userProvidedThreadId, limit]);
+  }, [threadId, limit]);
 }

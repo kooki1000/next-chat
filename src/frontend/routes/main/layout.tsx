@@ -12,9 +12,9 @@ export function MainLayout() {
       <SidebarInset>
         <div className="flex h-screen flex-col">
           <TopNavigation />
-          <div className="flex-1 overflow-hidden">
+          <main className="flex-1 overflow-hidden">
             <Outlet />
-          </div>
+          </main>
         </div>
       </SidebarInset>
     </SidebarProvider>
