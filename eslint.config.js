@@ -12,7 +12,12 @@ export default antfu({
     semi: true,
   },
   formatters: true,
-  ignores: ["next-env.d.ts"],
+  ignores: [
+    "next-env.d.ts",
+    "convex/README.md",
+    "convex/tsconfig.json",
+    "convex/_generated/**/*",
+  ],
 }, jsxA11y.flatConfigs.recommended, {
   plugins: {
     "@next/next": nextPlugin,

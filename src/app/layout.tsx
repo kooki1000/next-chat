@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
-import { ClerkProvider, ThemeProvider } from "@/providers";
+import {
+  ClerkProvider,
+  ConvexClientProvider,
+  ThemeProvider,
+} from "@/providers";
 
 import "@/styles.css";
 
@@ -20,7 +24,9 @@ export default function RootLayout({
       <body className="using-mouse">
         <ThemeProvider>
           <ClerkProvider>
-            {children}
+            <ConvexClientProvider>
+              {children}
+            </ConvexClientProvider>
           </ClerkProvider>
         </ThemeProvider>
       </body>
