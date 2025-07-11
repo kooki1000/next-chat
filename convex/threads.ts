@@ -37,6 +37,48 @@ export const createThread = mutation({
   },
 });
 
+export const syncLocalThreads = mutation({
+  args: {
+    threads: v.array(v.object({
+      title: v.string(),
+      userProvidedId: v.string(),
+      createdAt: v.string(),
+      updatedAt: v.string(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    const results = [];
+
+    for (const thread of args.threads) {
+      try {
+        // Check if thread already exists
+        const existingThread = await getThreadByUserProvidedId(ctx, thread.userProvidedId);
+        if (existingThread) {
+          results.push({ userProvidedId: thread.userProvidedId, status: "exists", id: existingThread._id });
+          continue;
+        }
+
+        const syncedThread = await insertThread(ctx, {
+          title: thread.title,
+          userId: user?._id ?? undefined,
+          userProvidedId: thread.userProvidedId,
+          createdAt: thread.createdAt,
+          updatedAt: thread.updatedAt,
+        });
+
+        results.push({ userProvidedId: thread.userProvidedId, status: "synced", id: syncedThread });
+      }
+      catch (error) {
+        console.error(`Failed to sync thread ${thread.userProvidedId}:`, error);
+        results.push({ userProvidedId: thread.userProvidedId, status: "error", error: String(error) });
+      }
+    }
+
+    return results;
+  },
+});
+
 async function getThreadsByUserId(ctx: QueryCtx, userId: Id<"users">) {
   return await ctx.db
     .query("threads")

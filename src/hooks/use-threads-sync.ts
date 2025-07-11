@@ -1,22 +1,34 @@
-import { useQuery } from "convex/react";
-import { useEffect, useState } from "react";
+import { useNetworkState } from "@uidotdev/usehooks";
+import { useMutation, useQuery } from "convex/react";
+import { useEffect, useRef, useState } from "react";
 
 import { api } from "@/convex/_generated/api";
 import { localDb } from "@/db/dexie";
 
 /**
- * A hook that syncs threads from Convex to the local IndexedDB.
+ * A hook that syncs threads between Convex and the local IndexedDB.
  * On initial load, it fetches all threads and stores them locally.
+ * When coming back online after being offline, it syncs local changes to Convex.
  */
 export function useThreadsSync() {
+  // State to track sync status
   const [isInitialSyncComplete, setIsInitialSyncComplete] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  // Get threads from Convex (live updates)
-  const convexThreads = useQuery(api.threads.getUserThreads);
+  // State for uploading local threads to Convex
+  const [isUploadingSyncThreads, setIsUploadingSyncThreads] = useState(false);
+  const [syncError, setSyncError] = useState<Error | null>(null);
 
-  // Initial sync effect
+  // Track previous online state to detect transitions
+  const previousOnlineState = useRef<boolean>(true);
+  const { online: isOnline } = useNetworkState();
+
+  // Get threads and mutation from Convex (live updates)
+  const convexThreads = useQuery(api.threads.getUserThreads);
+  const syncLocalThreads = useMutation(api.threads.syncLocalThreads);
+
+  // Initial sync effect - sync from Convex to local
   useEffect(() => {
     const syncThreadsToIndexDB = async () => {
       if (convexThreads === undefined)
@@ -89,10 +101,60 @@ export function useThreadsSync() {
     updateLocalThreads();
   }, [convexThreads, isInitialSyncComplete]);
 
+  // Handle network state changes - sync local to remote when coming back online
+  useEffect(() => {
+    const handleOnlineStateChange = async () => {
+      // Only sync when transitioning from offline to online
+      if (!previousOnlineState.current && isOnline && isInitialSyncComplete) {
+        setIsUploadingSyncThreads(true);
+        setSyncError(null);
+
+        try {
+          // Get all local threads that might need syncing
+          const localThreads = await localDb.threads.toArray();
+
+          // Prepare threads for sync
+          const threadsToSync = localThreads.map(thread => ({
+            title: thread.title,
+            userProvidedId: thread.userProvidedId,
+            createdAt: thread.createdAt,
+            updatedAt: thread.updatedAt,
+          }));
+
+          if (threadsToSync.length > 0) {
+            const results = await syncLocalThreads({ threads: threadsToSync });
+            const errorCount = results.filter(r => r.status === "error").length;
+
+            if (errorCount > 0) {
+              const errorMessages = results
+                .filter(r => r.status === "error")
+                .map(r => `${r.userProvidedId}: ${r.error}`)
+                .join(", ");
+
+              console.warn("Some threads failed to sync:", errorMessages);
+            }
+          }
+        }
+        catch (err) {
+          console.error("Failed to sync local threads to Convex:", err);
+          setSyncError(err instanceof Error ? err : new Error("Unknown error during sync"));
+        }
+        finally {
+          setIsUploadingSyncThreads(false);
+        }
+      }
+
+      previousOnlineState.current = isOnline;
+    };
+
+    handleOnlineStateChange();
+  }, [isOnline, isInitialSyncComplete, syncLocalThreads]);
+
   return {
     isInitialSyncComplete,
     isSyncing,
     error,
-    convexThreads,
+    isUploadingSyncThreads,
+    syncError,
   };
 }

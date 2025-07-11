@@ -20,19 +20,18 @@ export const getUserMessages = query({
   },
 });
 
-export const createInitialMessage = mutation({
+export const createClientMessage = mutation({
   args: {
     content: v.string(),
     userProvidedId: v.string(),
     userProvidedThreadId: v.string(),
+    version: v.optional(v.number()),
     createdAt: v.string(),
   },
   handler: async (ctx, args) => {
-    const [user, thread] = await Promise.all([
-      getCurrentUser(ctx),
-      getThreadByUserProvidedId(ctx, args.userProvidedThreadId),
-    ]);
+    const user = await getCurrentUser(ctx);
 
+    const thread = await getThreadByUserProvidedId(ctx, args.userProvidedThreadId);
     if (!thread || thread.userProvidedId !== args.userProvidedThreadId) {
       throw new Error("Thread not found");
     }
@@ -48,9 +47,76 @@ export const createInitialMessage = mutation({
       userProvidedId: args.userProvidedId,
       threadId: thread._id,
       userProvidedThreadId: thread.userProvidedId,
-      version: 1,
+      version: args.version ?? 1,
       createdAt: args.createdAt,
     });
+  },
+});
+
+export const syncLocalMessages = mutation({
+  args: {
+    messages: v.array(v.object({
+      role: v.union(
+        v.literal("user"),
+        v.literal("assistant"),
+        v.literal("system"),
+        v.literal("tool"),
+      ),
+      content: v.string(),
+      userProvidedId: v.string(),
+      userProvidedThreadId: v.string(),
+      createdAt: v.string(),
+      version: v.optional(v.number()),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUser(ctx);
+    const results = [];
+
+    for (const message of args.messages) {
+      try {
+        const thread = await getThreadByUserProvidedId(ctx, message.userProvidedThreadId);
+        if (!thread || thread.userProvidedId !== message.userProvidedThreadId) {
+          console.warn(`Thread not found for message ${message.userProvidedId}`);
+          continue;
+        }
+
+        if (user && thread.userId !== user._id) {
+          console.warn(`Not authorized to sync message ${message.userProvidedId} to thread ${message.userProvidedThreadId}`);
+          continue;
+        }
+
+        // Check if message already exists
+        const existingMessage = await ctx.db
+          .query("messages")
+          .filter(q => q.eq(q.field("userProvidedId"), message.userProvidedId))
+          .first();
+
+        if (existingMessage) {
+          results.push({ userProvidedId: message.userProvidedId, status: "exists", id: existingMessage._id });
+          continue;
+        }
+
+        const syncedMessage = await insertMessage(ctx, {
+          role: message.role,
+          content: message.content,
+          userId: user?._id ?? undefined,
+          userProvidedId: message.userProvidedId,
+          threadId: thread._id,
+          userProvidedThreadId: thread.userProvidedId,
+          version: message.version ?? 1,
+          createdAt: message.createdAt,
+        });
+
+        results.push({ userProvidedId: message.userProvidedId, status: "synced", id: syncedMessage });
+      }
+      catch (error) {
+        console.error(`Failed to sync message ${message.userProvidedId}:`, error);
+        results.push({ userProvidedId: message.userProvidedId, status: "error", error: String(error) });
+      }
+    }
+
+    return results;
   },
 });
 
