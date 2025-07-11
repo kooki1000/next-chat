@@ -117,8 +117,8 @@ export function useThreadsSync() {
           const threadsToSync = localThreads.map(thread => ({
             title: thread.title,
             userProvidedId: thread.userProvidedId,
-            createdAt: thread.createdAt,
-            updatedAt: thread.updatedAt,
+            createdAt: new Date(thread.createdAt),
+            updatedAt: new Date(thread.updatedAt),
           }));
 
           if (threadsToSync.length > 0) {

@@ -2,9 +2,12 @@ import type { WithoutSystemFields } from "convex/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
-import { v } from "convex/values";
+import z from "zod";
 
-import { mutation, query } from "./_generated/server";
+import { DEFAULT_MAX_LENGTH } from "@/lib/constants";
+import { zodMutation } from "@/lib/utils";
+
+import { query } from "./_generated/server";
 import { getThreadByUserProvidedId } from "./threads";
 import { getCurrentUser } from "./users";
 
@@ -20,13 +23,13 @@ export const getUserMessages = query({
   },
 });
 
-export const createClientMessage = mutation({
+export const createClientMessage = zodMutation({
   args: {
-    content: v.string(),
-    userProvidedId: v.string(),
-    userProvidedThreadId: v.string(),
-    version: v.optional(v.number()),
-    createdAt: v.string(),
+    content: z.string().max(DEFAULT_MAX_LENGTH),
+    userProvidedId: z.string().uuid(),
+    userProvidedThreadId: z.string().uuid(),
+    version: z.number().optional(),
+    createdAt: z.date(),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -48,25 +51,20 @@ export const createClientMessage = mutation({
       threadId: thread._id,
       userProvidedThreadId: thread.userProvidedId,
       version: args.version ?? 1,
-      createdAt: args.createdAt,
+      createdAt: args.createdAt.toISOString(),
     });
   },
 });
 
-export const syncLocalMessages = mutation({
+export const syncLocalMessages = zodMutation({
   args: {
-    messages: v.array(v.object({
-      role: v.union(
-        v.literal("user"),
-        v.literal("assistant"),
-        v.literal("system"),
-        v.literal("tool"),
-      ),
-      content: v.string(),
-      userProvidedId: v.string(),
-      userProvidedThreadId: v.string(),
-      createdAt: v.string(),
-      version: v.optional(v.number()),
+    messages: z.array(z.object({
+      role: z.enum(["user", "assistant", "system", "tool"]),
+      content: z.string().max(4000),
+      userProvidedId: z.string().uuid(),
+      userProvidedThreadId: z.string().uuid(),
+      createdAt: z.date(),
+      version: z.number().optional(),
     })),
   },
   handler: async (ctx, args) => {
@@ -105,7 +103,7 @@ export const syncLocalMessages = mutation({
           threadId: thread._id,
           userProvidedThreadId: thread.userProvidedId,
           version: message.version ?? 1,
-          createdAt: message.createdAt,
+          createdAt: message.createdAt.toISOString(),
         });
 
         results.push({ userProvidedId: message.userProvidedId, status: "synced", id: syncedMessage });

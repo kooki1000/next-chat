@@ -116,15 +116,14 @@ export function useMessagesSync() {
           // Filter messages that might not exist on the server yet and ensure correct types
           const messagesToSync = localMessages
             .filter(message =>
-              message.userProvidedThreadId
-              && (message.role === "user" || message.role === "assistant" || message.role === "system"),
+              message.userProvidedThreadId && (message.role === "user"),
             )
             .map(message => ({
               content: message.content,
               userProvidedId: message.userProvidedId,
               userProvidedThreadId: message.userProvidedThreadId as string,
-              role: message.role as "user" | "assistant" | "system",
-              createdAt: message.createdAt,
+              role: message.role as "user",
+              createdAt: new Date(message.createdAt),
               version: message.version,
             }));
 

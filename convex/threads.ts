@@ -2,9 +2,12 @@ import type { WithoutSystemFields } from "convex/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
-import { v } from "convex/values";
+import { z } from "zod/";
 
-import { mutation, query } from "./_generated/server";
+import { DEFAULT_MAX_LENGTH } from "@/lib/constants";
+import { zodMutation } from "@/lib/utils";
+
+import { query } from "./_generated/server";
 import { getCurrentUser } from "./users";
 
 export const getUserThreads = query({
@@ -19,31 +22,33 @@ export const getUserThreads = query({
   },
 });
 
-export const createThread = mutation({
+export const createThread = zodMutation({
   args: {
-    title: v.string(),
-    userProvidedId: v.string(),
-    createdAt: v.string(),
+    title: z.string().max(DEFAULT_MAX_LENGTH),
+    userProvidedId: z.string().uuid(),
+    createdAt: z.date(),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
+    const createdAt = args.createdAt.toISOString();
+
     return await insertThread(ctx, {
       title: args.title,
-      userId: user?._id,
+      userId: user?._id ?? undefined,
       userProvidedId: args.userProvidedId,
-      createdAt: args.createdAt,
-      updatedAt: args.createdAt,
+      createdAt,
+      updatedAt: createdAt,
     });
   },
 });
 
-export const syncLocalThreads = mutation({
+export const syncLocalThreads = zodMutation({
   args: {
-    threads: v.array(v.object({
-      title: v.string(),
-      userProvidedId: v.string(),
-      createdAt: v.string(),
-      updatedAt: v.string(),
+    threads: z.array(z.object({
+      title: z.string().max(DEFAULT_MAX_LENGTH),
+      userProvidedId: z.string().uuid(),
+      createdAt: z.date(),
+      updatedAt: z.date(),
     })),
   },
   handler: async (ctx, args) => {
@@ -63,8 +68,8 @@ export const syncLocalThreads = mutation({
           title: thread.title,
           userId: user?._id ?? undefined,
           userProvidedId: thread.userProvidedId,
-          createdAt: thread.createdAt,
-          updatedAt: thread.updatedAt,
+          createdAt: thread.createdAt.toISOString(),
+          updatedAt: thread.updatedAt.toISOString(),
         });
 
         results.push({ userProvidedId: thread.userProvidedId, status: "synced", id: syncedThread });
