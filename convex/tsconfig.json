@@ -13,7 +13,6 @@
     "allowSyntheticDefaultImports": true,
     "paths": {
       "@/*": ["../src/*"],
-      "@/convex/*": ["./*"],
     },
 
     /* These compiler options are required by Convex */

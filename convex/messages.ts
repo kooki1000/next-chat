@@ -5,11 +5,11 @@ import type { MutationCtx, QueryCtx } from "./_generated/server";
 import z from "zod";
 
 import { DEFAULT_MAX_LENGTH } from "@/lib/constants";
-import { zodMutation } from "@/lib/utils";
 
 import { query } from "./_generated/server";
 import { getThreadByUserProvidedId } from "./threads";
 import { getCurrentUser } from "./users";
+import { zodMutation } from "./utils";
 
 export const getUserMessages = query({
   args: {},

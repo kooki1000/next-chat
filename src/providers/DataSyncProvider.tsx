@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useMemo } from "react";
+import { createContext, useEffect, useMemo } from "react";
 
 import { useMessagesSync } from "@/hooks/use-messages-sync";
 import { useThreadsSync } from "@/hooks/use-threads-sync";
@@ -46,17 +46,24 @@ export function DataSyncProvider({ children }: { children: React.ReactNode }) {
     },
   }), [threadsSync, messagesSync]);
 
-  if (threadsSync.error)
-    console.error("Failed to sync threads:", threadsSync.error);
+  // Handle error logging in useEffect to avoid side effects during render
+  useEffect(() => {
+    if (threadsSync.error) {
+      console.error("Failed to sync threads:", threadsSync.error);
+    }
+    if (threadsSync.syncError) {
+      console.error("Failed to upload threads:", threadsSync.syncError);
+    }
+  }, [threadsSync.error, threadsSync.syncError]);
 
-  if (messagesSync.error)
-    console.error("Failed to sync messages:", messagesSync.error);
-
-  if (threadsSync.syncError)
-    console.error("Failed to upload threads:", threadsSync.syncError);
-
-  if (messagesSync.syncError)
-    console.error("Failed to upload messages:", messagesSync.syncError);
+  useEffect(() => {
+    if (messagesSync.error) {
+      console.error("Failed to sync messages:", messagesSync.error);
+    }
+    if (messagesSync.syncError) {
+      console.error("Failed to upload messages:", messagesSync.syncError);
+    }
+  }, [messagesSync.error, messagesSync.syncError]);
 
   return (
     <DataSyncContext value={contextValue}>

@@ -106,7 +106,7 @@ export function MainPage() {
             {" "}
             and our
             {" "}
-            <Button variant="link" className="h-auto p-0 text-xs underline">
+            <Button variant="link" className="h-auto p-0 text-xs underline" asChild>
               <Link to="#privacy">Privacy Policy</Link>
             </Button>
           </div>
