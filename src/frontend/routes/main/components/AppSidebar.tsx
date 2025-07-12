@@ -33,7 +33,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-4">
         <div className="mb-4 flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
-            <Sparkles className="h-4 w-4 text-white" />
+            <Sparkles className="h-4 w-4 text-white" aria-hidden="true" />
           </div>
           <Link to={routes.$path()} className="text-lg font-semibold">Next Chat</Link>
         </div>

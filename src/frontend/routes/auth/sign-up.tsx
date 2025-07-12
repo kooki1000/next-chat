@@ -66,7 +66,7 @@ export function SignUpPage() {
           <div className="max-w-md">
             <div className="mb-8 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
-                <Sparkles className="h-4 w-4 text-white" />
+                <Sparkles className="h-4 w-4 text-white" aria-hidden="true" />
               </div>
               <span className="text-xl font-semibold">Next Chat</span>
             </div>

@@ -1,8 +1,9 @@
 import { useNetworkState } from "@uidotdev/usehooks";
 import { useConvexAuth, useMutation } from "convex/react";
 import { Code, GraduationCap, Search, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 import { InputBox } from "@/components/InputBox";
 import { ModelSelector } from "@/components/ModelSelector";
@@ -96,18 +97,17 @@ export function MainPage() {
         <div className="mt-4 flex items-center justify-between">
           <ModelSelector />
 
-          {/* TODO:  Replace with actual terms and privacy links */}
           <div className="text-xs text-muted-foreground">
             Make sure you agree to our
             {" "}
             <Button variant="link" className="h-auto p-0 text-xs underline" asChild>
-              <Link to="#terms">Terms</Link>
+              <Link href="/terms-of-service" target="_blank">Terms</Link>
             </Button>
             {" "}
             and our
             {" "}
             <Button variant="link" className="h-auto p-0 text-xs underline" asChild>
-              <Link to="#privacy">Privacy Policy</Link>
+              <Link href="/privacy-policy" target="_blank">Privacy Policy</Link>
             </Button>
           </div>
         </div>
