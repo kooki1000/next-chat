@@ -11,14 +11,14 @@ import { localDb } from "@/db/dexie";
  * When coming back online after being offline, it syncs local changes to Convex.
  */
 export function useThreadsSync() {
-  // State to track sync status
+  // State to track download sync status
   const [isInitialSyncComplete, setIsInitialSyncComplete] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [downloadError, setDownloadError] = useState<Error | null>(null);
 
   // State for uploading local threads to Convex
   const [isUploadingSyncThreads, setIsUploadingSyncThreads] = useState(false);
-  const [syncError, setSyncError] = useState<Error | null>(null);
+  const [uploadError, setUploadError] = useState<Error | null>(null);
 
   // Track previous online state to detect transitions
   const previousOnlineState = useRef<boolean>(true);
@@ -51,7 +51,7 @@ export function useThreadsSync() {
       }
       catch (err) {
         console.error("Failed to sync threads to IndexedDB:", err);
-        setError(err instanceof Error ? err : new Error("Unknown error during sync"));
+        setDownloadError(err instanceof Error ? err : new Error("Unknown error during download"));
       }
       finally {
         setIsSyncing(false);
@@ -107,7 +107,7 @@ export function useThreadsSync() {
       // Only sync when transitioning from offline to online
       if (!previousOnlineState.current && isOnline && isInitialSyncComplete) {
         setIsUploadingSyncThreads(true);
-        setSyncError(null);
+        setUploadError(null);
 
         try {
           // Get all local threads that might need syncing
@@ -137,7 +137,7 @@ export function useThreadsSync() {
         }
         catch (err) {
           console.error("Failed to sync local threads to Convex:", err);
-          setSyncError(err instanceof Error ? err : new Error("Unknown error during sync"));
+          setUploadError(err instanceof Error ? err : new Error("Unknown error during upload"));
         }
         finally {
           setIsUploadingSyncThreads(false);
@@ -153,8 +153,8 @@ export function useThreadsSync() {
   return {
     isInitialSyncComplete,
     isSyncing,
-    error,
+    downloadError,
     isUploadingSyncThreads,
-    syncError,
+    uploadError,
   };
 }

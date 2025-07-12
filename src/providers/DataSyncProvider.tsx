@@ -9,16 +9,16 @@ export interface DataSyncContextType {
   threads: {
     isInitialSyncComplete: boolean;
     isSyncing: boolean;
-    error: Error | null;
+    downloadError: Error | null;
     isUploadingSyncThreads: boolean;
-    syncError: Error | null;
+    uploadError: Error | null;
   };
   messages: {
     isInitialSyncComplete: boolean;
     isSyncing: boolean;
-    error: Error | null;
+    downloadError: Error | null;
     isUploadingSyncMessages: boolean;
-    syncError: Error | null;
+    uploadError: Error | null;
   };
 }
 
@@ -33,37 +33,37 @@ export function DataSyncProvider({ children }: { children: React.ReactNode }) {
     threads: {
       isInitialSyncComplete: threadsSync.isInitialSyncComplete,
       isSyncing: threadsSync.isSyncing,
-      error: threadsSync.error,
+      downloadError: threadsSync.downloadError,
       isUploadingSyncThreads: threadsSync.isUploadingSyncThreads,
-      syncError: threadsSync.syncError,
+      uploadError: threadsSync.uploadError,
     },
     messages: {
       isInitialSyncComplete: messagesSync.isInitialSyncComplete,
       isSyncing: messagesSync.isSyncing,
-      error: messagesSync.error,
+      downloadError: messagesSync.downloadError,
       isUploadingSyncMessages: messagesSync.isUploadingSyncMessages,
-      syncError: messagesSync.syncError,
+      uploadError: messagesSync.uploadError,
     },
   }), [threadsSync, messagesSync]);
 
   // Handle error logging in useEffect to avoid side effects during render
   useEffect(() => {
-    if (threadsSync.error) {
-      console.error("Failed to sync threads:", threadsSync.error);
+    if (threadsSync.downloadError) {
+      console.error("Failed to download threads from server:", threadsSync.downloadError);
     }
-    if (threadsSync.syncError) {
-      console.error("Failed to upload threads:", threadsSync.syncError);
+    if (threadsSync.uploadError) {
+      console.error("Failed to upload threads to server:", threadsSync.uploadError);
     }
-  }, [threadsSync.error, threadsSync.syncError]);
+  }, [threadsSync.downloadError, threadsSync.uploadError]);
 
   useEffect(() => {
-    if (messagesSync.error) {
-      console.error("Failed to sync messages:", messagesSync.error);
+    if (messagesSync.downloadError) {
+      console.error("Failed to download messages from server:", messagesSync.downloadError);
     }
-    if (messagesSync.syncError) {
-      console.error("Failed to upload messages:", messagesSync.syncError);
+    if (messagesSync.uploadError) {
+      console.error("Failed to upload messages to server:", messagesSync.uploadError);
     }
-  }, [messagesSync.error, messagesSync.syncError]);
+  }, [messagesSync.downloadError, messagesSync.uploadError]);
 
   return (
     <DataSyncContext value={contextValue}>
