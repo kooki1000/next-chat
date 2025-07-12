@@ -1,12 +1,7 @@
 import { useNetworkState } from "@uidotdev/usehooks";
 import { useConvexAuth, useMutation } from "convex/react";
-import {
-  Code,
-  GraduationCap,
-  Search,
-  Sparkles,
-} from "lucide-react";
-import { useEffect, useRef } from "react";
+import { Code, GraduationCap, Search, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router";
 
 import { InputBox } from "@/components/InputBox";
@@ -14,6 +9,7 @@ import { ModelSelector } from "@/components/ModelSelector";
 import { Button } from "@/components/ui/button";
 
 import { api } from "@/convex/_generated/api";
+import { useGlobalEnterKey } from "@/hooks/use-global-enter-key";
 import { usePromptStore } from "@/stores/prompt-store";
 
 const categories = [
@@ -38,7 +34,6 @@ export function MainPage() {
   const { online: isOnline } = useNetworkState();
   const createThread = useMutation(api.threads.createThread);
 
-  // Prompt store for managing input state
   const { prompt, setPrompt, handleSendMessage } = usePromptStore();
   const inputBoxRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -47,9 +42,14 @@ export function MainPage() {
     inputBoxRef.current?.focus();
   }, []);
 
-  const onSendMessage = () => {
+  const onSendMessage = useCallback(() => {
     handleSendMessage(isOnline, isAuthenticated, createThread, navigate);
-  };
+  }, [handleSendMessage, isOnline, isAuthenticated, createThread, navigate]);
+
+  useGlobalEnterKey({
+    onEnter: onSendMessage,
+    hasContent: !!prompt.trim(),
+  });
 
   return (
     <div className="mx-auto flex h-full w-full max-w-4xl flex-1 flex-col items-center justify-center">

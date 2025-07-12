@@ -28,6 +28,11 @@ interface PromptActions {
 
 type PromptStore = PromptState & PromptActions;
 
+/**
+ * Zustand store for managing the prompt input state and sending messages.
+ * This store handles both online and offline scenarios, creating threads
+ * and navigating to the chat page.
+ */
 export const usePromptStore = create<PromptStore>((set, get) => ({
   prompt: "",
   setPrompt: (prompt: string) => set({ prompt }),
