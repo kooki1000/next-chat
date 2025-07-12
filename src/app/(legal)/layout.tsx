@@ -10,7 +10,8 @@ export default function LegalLayout({ children }: {
         className={`mx-auto prose max-w-3xl px-4 py-12
         prose-headings:font-bold prose-headings:text-accent-foreground
         prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-3xl prose-p:text-muted-foreground
-        prose-strong:text-foreground prose-li:text-muted-foreground prose-li:marker:text-primary`}
+        prose-a:text-muted-foreground prose-a:hover:bg-primary/30 prose-strong:text-foreground
+        prose-li:text-muted-foreground prose-li:marker:text-primary`}
       >
         {children}
       </main>

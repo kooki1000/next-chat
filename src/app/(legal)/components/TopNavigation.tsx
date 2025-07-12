@@ -13,7 +13,7 @@ export function TopNavigation() {
       <div className="flex items-center gap-2">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
-            <Sparkles className="h-4 w-4 text-white" />
+            <Sparkles className="h-4 w-4 text-white" aria-hidden="true" />
           </div>
           <h1 className="hidden text-lg font-semibold sm:block">Next Chat</h1>
         </Link>
