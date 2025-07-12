@@ -1,20 +1,19 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
 
 import { Loader } from "@/components/Loader";
 
 import { routes } from "@/frontend/routes";
 
-export function NotFound() {
-  const navigate = useNavigate();
+export default function NotFound() {
+  const router = useRouter();
 
   useEffect(() => {
     console.warn("Not Found: Redirecting to home page");
-    navigate(
-      { pathname: routes.$path() },
-      { replace: true },
-    );
-  }, [navigate]);
+    router.replace(routes.$path());
+  }, [router]);
 
   return <Loader />;
 }
