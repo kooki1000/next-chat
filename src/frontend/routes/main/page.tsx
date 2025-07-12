@@ -1,14 +1,20 @@
+import { useNetworkState } from "@uidotdev/usehooks";
+import { useConvexAuth, useMutation } from "convex/react";
 import {
   Code,
   GraduationCap,
   Search,
   Sparkles,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router";
 
 import { InputBox } from "@/components/InputBox";
 import { ModelSelector } from "@/components/ModelSelector";
 import { Button } from "@/components/ui/button";
+
+import { api } from "@/convex/_generated/api";
+import { usePromptStore } from "@/stores/prompt-store";
 
 const categories = [
   { icon: Sparkles, label: "Create", color: "bg-purple-100 text-purple-700 hover:bg-purple-200" },
@@ -25,7 +31,15 @@ const examplePrompts = [
 ];
 
 export function MainPage() {
-  const [prompt, setPrompt] = useState("");
+  const navigate = useNavigate();
+
+  // Network and authentication states
+  const { isAuthenticated } = useConvexAuth();
+  const { online: isOnline } = useNetworkState();
+  const createThread = useMutation(api.threads.createThread);
+
+  // Prompt store for managing input state
+  const { prompt, setPrompt, handleSendMessage } = usePromptStore();
   const inputBoxRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Focus the input box when the component mounts
@@ -33,12 +47,8 @@ export function MainPage() {
     inputBoxRef.current?.focus();
   }, []);
 
-  const handleSendMessage = () => {
-    if (prompt.trim()) {
-      // eslint-disable-next-line no-console
-      console.log("Sending message:", prompt);
-      setPrompt("");
-    }
+  const onSendMessage = () => {
+    handleSendMessage(isOnline, isAuthenticated, createThread, navigate);
   };
 
   return (
@@ -78,7 +88,7 @@ export function MainPage() {
           ref={inputBoxRef}
           value={prompt}
           onChange={setPrompt}
-          onSend={handleSendMessage}
+          onSend={onSendMessage}
           className="min-h-[120px]"
         />
 
@@ -86,17 +96,18 @@ export function MainPage() {
         <div className="mt-4 flex items-center justify-between">
           <ModelSelector />
 
+          {/* TODO:  Replace with actual terms and privacy links */}
           <div className="text-xs text-muted-foreground">
             Make sure you agree to our
             {" "}
-            <Button variant="link" className="h-auto p-0 text-xs underline">
-              Terms
+            <Button variant="link" className="h-auto p-0 text-xs underline" asChild>
+              <Link to="#terms">Terms</Link>
             </Button>
             {" "}
             and our
             {" "}
             <Button variant="link" className="h-auto p-0 text-xs underline">
-              Privacy Policy
+              <Link to="#privacy">Privacy Policy</Link>
             </Button>
           </div>
         </div>

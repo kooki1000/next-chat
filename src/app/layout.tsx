@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { Toaster } from "@/components/ui/sonner";
+
 import {
   ClerkProvider,
   ConvexClientProvider,
@@ -26,6 +28,7 @@ export default function RootLayout({
           <ClerkProvider>
             <ConvexClientProvider>
               {children}
+              <Toaster position="top-right" />
             </ConvexClientProvider>
           </ClerkProvider>
         </ThemeProvider>

@@ -123,7 +123,7 @@ export function useMessagesSync() {
               userProvidedId: message.userProvidedId,
               userProvidedThreadId: message.userProvidedThreadId as string,
               role: message.role as "user",
-              createdAt: new Date(message.createdAt),
+              createdAt: message.createdAt,
               version: message.version,
             }));
 

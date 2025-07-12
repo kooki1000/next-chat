@@ -29,7 +29,7 @@ export const createClientMessage = zodMutation({
     userProvidedId: z.string().uuid(),
     userProvidedThreadId: z.string().uuid(),
     version: z.number().optional(),
-    createdAt: z.date(),
+    createdAt: z.string().datetime(),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -51,7 +51,7 @@ export const createClientMessage = zodMutation({
       threadId: thread._id,
       userProvidedThreadId: thread.userProvidedId,
       version: args.version ?? 1,
-      createdAt: args.createdAt.toISOString(),
+      createdAt: args.createdAt,
     });
   },
 });
@@ -63,8 +63,8 @@ export const syncLocalMessages = zodMutation({
       content: z.string().max(4000),
       userProvidedId: z.string().uuid(),
       userProvidedThreadId: z.string().uuid(),
-      createdAt: z.date(),
       version: z.number().optional(),
+      createdAt: z.string().datetime(),
     })),
   },
   handler: async (ctx, args) => {
@@ -103,7 +103,7 @@ export const syncLocalMessages = zodMutation({
           threadId: thread._id,
           userProvidedThreadId: thread.userProvidedId,
           version: message.version ?? 1,
-          createdAt: message.createdAt.toISOString(),
+          createdAt: message.createdAt,
         });
 
         results.push({ userProvidedId: message.userProvidedId, status: "synced", id: syncedMessage });

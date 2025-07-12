@@ -2,7 +2,7 @@ import type { WithoutSystemFields } from "convex/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
-import { z } from "zod/";
+import { z } from "zod";
 
 import { DEFAULT_MAX_LENGTH } from "@/lib/constants";
 import { zodMutation } from "@/lib/utils";
@@ -26,18 +26,16 @@ export const createThread = zodMutation({
   args: {
     title: z.string().max(DEFAULT_MAX_LENGTH),
     userProvidedId: z.string().uuid(),
-    createdAt: z.date(),
+    createdAt: z.string().datetime(),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
-    const createdAt = args.createdAt.toISOString();
-
     return await insertThread(ctx, {
       title: args.title,
       userId: user?._id ?? undefined,
       userProvidedId: args.userProvidedId,
-      createdAt,
-      updatedAt: createdAt,
+      createdAt: args.createdAt,
+      updatedAt: args.createdAt,
     });
   },
 });
@@ -47,8 +45,8 @@ export const syncLocalThreads = zodMutation({
     threads: z.array(z.object({
       title: z.string().max(DEFAULT_MAX_LENGTH),
       userProvidedId: z.string().uuid(),
-      createdAt: z.date(),
-      updatedAt: z.date(),
+      createdAt: z.string().datetime(),
+      updatedAt: z.string().datetime(),
     })),
   },
   handler: async (ctx, args) => {
@@ -68,8 +66,8 @@ export const syncLocalThreads = zodMutation({
           title: thread.title,
           userId: user?._id ?? undefined,
           userProvidedId: thread.userProvidedId,
-          createdAt: thread.createdAt.toISOString(),
-          updatedAt: thread.updatedAt.toISOString(),
+          createdAt: thread.createdAt,
+          updatedAt: thread.updatedAt,
         });
 
         results.push({ userProvidedId: thread.userProvidedId, status: "synced", id: syncedThread });
