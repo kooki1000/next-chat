@@ -72,6 +72,19 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
             });
           }
 
+          await localDb.messages.add({
+            _id: crypto.randomUUID() as Id<"messages">,
+            _creationTime: createdAt.getTime(),
+            role: "user",
+            content: prompt,
+            userId: undefined,
+            threadId: threadId as Id<"threads">,
+            userProvidedThreadId: threadId,
+            userProvidedId: crypto.randomUUID() as Id<"messages">,
+            version: 1,
+            createdAt: createdAt.toISOString(),
+          });
+
           // TODO: Send prompt to backend for processing
           clearPrompt();
 
@@ -107,6 +120,19 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
 
           toast.success("Thread saved locally", {
             description: "AI response will be available when you are back online.",
+          });
+
+          await localDb.messages.add({
+            _id: crypto.randomUUID() as Id<"messages">,
+            _creationTime: createdAt.getTime(),
+            role: "user",
+            content: prompt,
+            userId: undefined,
+            threadId: threadId as Id<"threads">,
+            userProvidedThreadId: threadId,
+            userProvidedId: crypto.randomUUID() as Id<"messages">,
+            version: 1,
+            createdAt: createdAt.toISOString(),
           });
 
           clearPrompt();
