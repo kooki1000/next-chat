@@ -14,7 +14,8 @@
     "start": "next start",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.24.0",
@@ -64,8 +65,14 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5.8.3"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx}": "pnpm run typecheck",
+    "**/*.{js,jsx,ts,tsx,cjs,mjs,html,md,json,json5,jsonc,yaml,css}": "pnpm run lint:fix"
   }
 }
