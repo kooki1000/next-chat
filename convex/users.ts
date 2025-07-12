@@ -1,11 +1,9 @@
 import type { UserJSON } from "@clerk/backend";
 import type { Validator } from "convex/values";
-
-import type { ActionCtx, QueryCtx } from "./_generated/server";
+import type { QueryCtx } from "./_generated/server";
 
 import { v } from "convex/values";
 
-import { internal } from "./_generated/api";
 import { internalMutation, internalQuery } from "./_generated/server";
 
 export const upsertFromClerk = internalMutation({
@@ -60,24 +58,6 @@ export async function getCurrentUser(ctx: QueryCtx) {
 
 export async function getCurrentUserOrThrow(ctx: QueryCtx) {
   const userRecord = await getCurrentUser(ctx);
-  if (!userRecord)
-    throw new Error("User not found");
-  return userRecord;
-}
-
-export async function getUserFromActionCtx(ctx: ActionCtx) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (identity === null) {
-    return null;
-  }
-
-  return await ctx.runQuery(internal.users.getUserByExternalId, {
-    externalId: identity.subject,
-  });
-}
-
-export async function getUserFromActionCtxOrThrow(ctx: ActionCtx) {
-  const userRecord = await getUserFromActionCtx(ctx);
   if (!userRecord)
     throw new Error("User not found");
   return userRecord;

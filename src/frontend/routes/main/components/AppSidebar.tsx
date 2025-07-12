@@ -8,7 +8,7 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,9 @@ import { routes } from "@/frontend/routes";
 import { ThreadList } from "./ThreadList";
 
 export function AppSidebar() {
+  const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useConvexAuth();
+
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4">
@@ -38,9 +40,11 @@ export function AppSidebar() {
 
         <Button
           type="button"
-          onClick={() => {
-            console.error("New chat not implemented yet");
-          }}
+          onClick={() => navigate({
+            pathname: routes.chat.$buildPath({
+              params: { threadId: crypto.randomUUID() },
+            }),
+          })}
           className="w-full justify-start gap-2 bg-primary/80 hover:bg-primary"
         >
           <Plus className="h-4 w-4" />

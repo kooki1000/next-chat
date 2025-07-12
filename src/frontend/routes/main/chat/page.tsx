@@ -21,14 +21,15 @@ export function ChatPage() {
 
   const inputAreaRef = useRef<InputAreaHandle>(null);
 
+  // TODO: Redirect to home if threadId is not valid
   useEffect(() => {
-    if (!threadId || (messages !== undefined && messages.length === 0)) {
+    if (!threadId) {
       navigate(
         { pathname: routes.$path() },
         { replace: true },
       );
     }
-  }, [threadId, messages, messages?.length, navigate]);
+  }, [threadId, navigate]);
 
   // Focus the input area when the component mounts
   useEffect(() => {

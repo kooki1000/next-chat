@@ -1,22 +1,34 @@
-import { useQuery } from "convex/react";
-import { useEffect, useState } from "react";
+import { useNetworkState } from "@uidotdev/usehooks";
+import { useMutation, useQuery } from "convex/react";
+import { useEffect, useRef, useState } from "react";
 
 import { api } from "@/convex/_generated/api";
 import { localDb } from "@/db/dexie";
 
 /**
- * A hook that syncs messages from Convex to the local IndexedDB.
+ * A hook that syncs messages between Convex and the local IndexedDB.
  * On initial load, it fetches all messages and stores them locally.
+ * When coming back online after being offline, it syncs local changes to Convex.
  */
 export function useMessagesSync() {
+  // State to track download sync status
   const [isInitialSyncComplete, setIsInitialSyncComplete] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [downloadError, setDownloadError] = useState<Error | null>(null);
 
-  // Get messages from Convex (live updates)
+  // State for uploading local messages to Convex
+  const [isUploadingSyncMessages, setIsUploadingSyncMessages] = useState(false);
+  const [uploadError, setUploadError] = useState<Error | null>(null);
+
+  // Track previous online state to detect transitions
+  const previousOnlineState = useRef<boolean>(true);
+  const { online: isOnline } = useNetworkState();
+
+  // Get messages and mutation from Convex (live updates)
   const convexMessages = useQuery(api.messages.getUserMessages);
+  const syncLocalMessages = useMutation(api.messages.syncLocalMessages);
 
-  // Initial sync effect
+  // Initial sync effect - sync from Convex to local
   useEffect(() => {
     const syncMessagesToIndexDB = async () => {
       if (convexMessages === undefined)
@@ -39,7 +51,7 @@ export function useMessagesSync() {
       }
       catch (err) {
         console.error("Failed to sync messages to IndexedDB:", err);
-        setError(err instanceof Error ? err : new Error("Unknown error during sync"));
+        setDownloadError(err instanceof Error ? err : new Error("Unknown error during download"));
       }
       finally {
         setIsSyncing(false);
@@ -89,10 +101,66 @@ export function useMessagesSync() {
     updateLocalMessages();
   }, [convexMessages, isInitialSyncComplete]);
 
+  // Handle network state changes - sync local to remote when coming back online
+  useEffect(() => {
+    const handleOnlineStateChange = async () => {
+      // Only sync when transitioning from offline to online
+      if (!previousOnlineState.current && isOnline && isInitialSyncComplete) {
+        setIsUploadingSyncMessages(true);
+        setUploadError(null);
+
+        try {
+          // Get all local messages that might need syncing
+          const localMessages = await localDb.messages.toArray();
+
+          // Filter messages that might not exist on the server yet and ensure correct types
+          const messagesToSync = localMessages
+            .filter(message =>
+              message.userProvidedThreadId && (message.role === "user"),
+            )
+            .map(message => ({
+              content: message.content,
+              userProvidedId: message.userProvidedId,
+              userProvidedThreadId: message.userProvidedThreadId as string,
+              role: message.role as "user",
+              createdAt: message.createdAt,
+              version: message.version,
+            }));
+
+          if (messagesToSync.length > 0) {
+            const results = await syncLocalMessages({ messages: messagesToSync });
+            const errorCount = results.filter(r => r.status === "error").length;
+
+            if (errorCount > 0) {
+              const errorMessages = results
+                .filter(r => r.status === "error")
+                .map(r => `${r.userProvidedId}: ${r.error}`)
+                .join(", ");
+
+              console.warn("Some messages failed to sync:", errorMessages);
+            }
+          }
+        }
+        catch (err) {
+          console.error("Failed to sync local messages to Convex:", err);
+          setUploadError(err instanceof Error ? err : new Error("Unknown error during upload"));
+        }
+        finally {
+          setIsUploadingSyncMessages(false);
+        }
+      }
+
+      previousOnlineState.current = isOnline;
+    };
+
+    handleOnlineStateChange();
+  }, [isOnline, isInitialSyncComplete, syncLocalMessages]);
+
   return {
     isInitialSyncComplete,
     isSyncing,
-    error,
-    convexMessages,
+    downloadError,
+    isUploadingSyncMessages,
+    uploadError,
   };
 }
