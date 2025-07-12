@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
+import { Loader } from "@/components/Loader";
+
 import { routes } from "@/frontend/routes";
 
 export function NotFound() {
@@ -14,5 +16,5 @@ export function NotFound() {
     );
   }, [navigate]);
 
-  return null;
+  return <Loader />;
 }
