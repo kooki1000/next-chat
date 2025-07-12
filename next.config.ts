@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
           destination: "/terms-of-service",
         },
         {
+          source: "/privacy-policy",
+          destination: "/privacy-policy",
+        },
+        {
+          source: "/security-policy",
+          destination: "/security-policy",
+        },
+        {
           source: "/api/:path*",
           destination: "/api/:path*",
         },
