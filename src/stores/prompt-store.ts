@@ -1,11 +1,10 @@
 import type { ReactMutation } from "convex/react";
 import type { FunctionReference } from "convex/server";
-import type { Id } from "@/convex/_generated/dataModel";
 
 import { toast } from "sonner";
 import { create } from "zustand";
 
-import { localDb } from "@/db/dexie";
+import { createLocalMessage, createLocalThread } from "@/db/mutations";
 import { routes } from "@/frontend/routes";
 import { DEFAULT_THREAD_TITLE } from "@/lib/constants";
 import { createMessageSchema } from "@/lib/schemas";
@@ -61,28 +60,16 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
           });
 
           if (!isAuthenticated) {
-            await localDb.threads.add({
-              _id: crypto.randomUUID() as Id<"threads">,
-              _creationTime: createdAt.getTime(),
-              title: DEFAULT_THREAD_TITLE,
-              userId: undefined,
-              userProvidedId: threadId,
-              createdAt: createdAt.toISOString(),
-              updatedAt: createdAt.toISOString(),
+            await createLocalThread({
+              createdAt,
+              updatedAt: createdAt,
             });
           }
 
-          await localDb.messages.add({
-            _id: crypto.randomUUID() as Id<"messages">,
-            _creationTime: createdAt.getTime(),
-            role: "user",
+          await createLocalMessage({
             content: prompt,
-            userId: undefined,
-            threadId: threadId as Id<"threads">,
-            userProvidedThreadId: threadId,
-            userProvidedId: crypto.randomUUID() as Id<"messages">,
-            version: 1,
-            createdAt: createdAt.toISOString(),
+            threadId,
+            createdAt,
           });
 
           // TODO: Send prompt to backend for processing
@@ -108,31 +95,19 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
       }
       else {
         try {
-          await localDb.threads.add({
-            _id: crypto.randomUUID() as Id<"threads">,
-            _creationTime: createdAt.getTime(),
-            title: DEFAULT_THREAD_TITLE,
-            userId: undefined,
-            userProvidedId: threadId,
-            createdAt: createdAt.toISOString(),
-            updatedAt: createdAt.toISOString(),
+          await createLocalThread({
+            createdAt,
+            updatedAt: createdAt,
           });
 
           toast.success("Thread saved locally", {
             description: "AI response will be available when you are back online.",
           });
 
-          await localDb.messages.add({
-            _id: crypto.randomUUID() as Id<"messages">,
-            _creationTime: createdAt.getTime(),
-            role: "user",
+          await createLocalMessage({
             content: prompt,
-            userId: undefined,
-            threadId: threadId as Id<"threads">,
-            userProvidedThreadId: threadId,
-            userProvidedId: crypto.randomUUID() as Id<"messages">,
-            version: 1,
-            createdAt: createdAt.toISOString(),
+            threadId,
+            createdAt,
           });
 
           clearPrompt();
