@@ -7,7 +7,6 @@ import "@/lib/env";
 const nextConfig: NextConfig = {
   async rewrites() {
     return {
-      beforeFiles: [],
       afterFiles: [
         {
           source: "/terms-of-service",
@@ -34,7 +33,7 @@ const nextConfig: NextConfig = {
       ],
     };
   },
-  pageExtensions: ["md", "mdx", "tsx"],
+  pageExtensions: ["mdx", "tsx", "ts"],
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -46,8 +45,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-const withMDX = createMDX({
-  extension: /\.(md|mdx)$/,
-});
+const withMDX = createMDX({});
 
 export default withMDX(nextConfig);

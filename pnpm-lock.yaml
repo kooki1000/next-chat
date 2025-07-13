@@ -61,13 +61,16 @@ importers:
         version: 1.25.2(@clerk/clerk-react@5.33.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       convex-helpers:
         specifier: ^0.1.99
-        version: 0.1.99(convex@1.25.2(@clerk/clerk-react@5.33.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
+        version: 0.1.99(convex@1.25.2(@clerk/clerk-react@5.33.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
       dexie:
         specifier: ^4.0.11
         version: 4.0.11
       dexie-react-hooks:
         specifier: ^1.1.7
         version: 1.1.7(@types/react@19.1.8)(dexie@4.0.11)(react@19.1.0)
+      hono:
+        specifier: ^4.8.4
+        version: 4.8.4
       lucide-react:
         specifier: ^0.525.0
         version: 0.525.0(react@19.1.0)
@@ -2353,6 +2356,10 @@ packages:
 
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
+
+  hono@4.8.4:
+    resolution: {integrity: sha512-KOIBp1+iUs0HrKztM4EHiB2UtzZDTBihDtOF5K6+WaJjCPeaW4Q92R8j63jOhvJI5+tZSMuKD9REVEXXY9illg==}
+    engines: {node: '>=16.9.0'}
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
@@ -5147,10 +5154,11 @@ snapshots:
 
   confbox@0.2.2: {}
 
-  convex-helpers@0.1.99(convex@1.25.2(@clerk/clerk-react@5.33.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.76):
+  convex-helpers@0.1.99(convex@1.25.2(@clerk/clerk-react@5.33.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(hono@4.8.4)(react@19.1.0)(typescript@5.8.3)(zod@3.25.76):
     dependencies:
       convex: 1.25.2(@clerk/clerk-react@5.33.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
     optionalDependencies:
+      hono: 4.8.4
       react: 19.1.0
       typescript: 5.8.3
       zod: 3.25.76
@@ -6090,6 +6098,8 @@ snapshots:
   hast-util-whitespace@3.0.0:
     dependencies:
       '@types/hast': 3.0.4
+
+  hono@4.8.4: {}
 
   ignore@5.3.2: {}
 
