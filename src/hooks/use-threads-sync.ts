@@ -114,9 +114,11 @@ export function useThreadsSync() {
           const localThreads = await localDb.threads.toArray();
 
           // Prepare threads for sync
+          // TODO: Add logic to handle `isPending`
           const threadsToSync = localThreads.map(thread => ({
             title: thread.title,
             userProvidedId: thread.userProvidedId,
+            isPending: thread.isPending ?? undefined,
             createdAt: thread.createdAt,
             updatedAt: thread.updatedAt,
           }));

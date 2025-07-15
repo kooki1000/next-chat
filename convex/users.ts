@@ -4,7 +4,7 @@ import type { QueryCtx } from "./_generated/server";
 
 import { v } from "convex/values";
 
-import { internalMutation, internalQuery } from "./_generated/server";
+import { internalMutation, query } from "./_generated/server";
 
 export const upsertFromClerk = internalMutation({
   args: { data: v.any() as Validator<UserJSON> },
@@ -40,7 +40,7 @@ export const deleteFromClerk = internalMutation({
   },
 });
 
-export const getUserByExternalId = internalQuery({
+export const getUserByExternalId = query({
   args: { externalId: v.string() },
   handler: async (ctx, { externalId }) => {
     return await userByExternalId(ctx, externalId);

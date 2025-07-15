@@ -2,9 +2,8 @@ import type { WithoutSystemFields } from "convex/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
+import { zid } from "convex-helpers/server/zod";
 import { z } from "zod";
-
-import { DEFAULT_MAX_LENGTH } from "@/lib/constants";
 
 import { query } from "./_generated/server";
 import { getCurrentUser } from "./users";
@@ -24,7 +23,7 @@ export const getUserThreads = query({
 
 export const createThread = zodMutation({
   args: {
-    title: z.string().max(DEFAULT_MAX_LENGTH),
+    title: z.string(),
     userProvidedId: z.string().uuid(),
     createdAt: z.string().datetime(),
   },
@@ -34,17 +33,41 @@ export const createThread = zodMutation({
       title: args.title,
       userId: user?._id ?? undefined,
       userProvidedId: args.userProvidedId,
+      isPending: true,
       createdAt: args.createdAt,
       updatedAt: args.createdAt,
     });
   },
 });
 
+export const updateThreadOnServer = zodMutation({
+  args: {
+    title: z.string(),
+    userId: zid("users").optional(),
+    userProvidedId: z.string().uuid(),
+  },
+  handler: async (ctx, args) => {
+    const thread = await getThreadByUserProvidedId(ctx, args.userProvidedId);
+    if (!thread) {
+      throw new Error(`Thread with userProvidedId ${args.userProvidedId} not found`);
+    }
+
+    return await ctx.db.patch(thread._id, {
+      title: args.title,
+      userId: args.userId ?? undefined,
+      isPending: false,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+});
+
+// TODO: Add logic when `isPending` is true
 export const syncLocalThreads = zodMutation({
   args: {
     threads: z.array(z.object({
-      title: z.string().max(DEFAULT_MAX_LENGTH),
+      title: z.string(),
       userProvidedId: z.string().uuid(),
+      isPending: z.boolean().optional(),
       createdAt: z.string().datetime(),
       updatedAt: z.string().datetime(),
     })),
@@ -66,6 +89,7 @@ export const syncLocalThreads = zodMutation({
           title: thread.title,
           userId: user?._id ?? undefined,
           userProvidedId: thread.userProvidedId,
+          isPending: thread.isPending ?? undefined,
           createdAt: thread.createdAt,
           updatedAt: thread.updatedAt,
         });

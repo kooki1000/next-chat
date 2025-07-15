@@ -14,6 +14,7 @@ export default defineSchema({
     title: v.string(),
     userId: v.optional(v.id("users")),
     userProvidedId: v.string(),
+    isPending: v.optional(v.boolean()),
     createdAt: v.string(),
     updatedAt: v.string(),
   })

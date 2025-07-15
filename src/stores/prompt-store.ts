@@ -6,6 +6,7 @@ import { create } from "zustand";
 
 import { createLocalMessage, createLocalThread } from "@/db/mutations";
 import { routes } from "@/frontend/routes";
+import { api } from "@/lib/api";
 import { DEFAULT_THREAD_TITLE } from "@/lib/constants";
 import { createMessageSchema } from "@/lib/schemas";
 
@@ -45,6 +46,7 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
         toast.error("Error sending message", {
           description: messageValidation.error.issues[0].message,
         });
+
         return;
       }
 
@@ -61,6 +63,7 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
 
           if (!isAuthenticated) {
             await createLocalThread({
+              threadId,
               createdAt,
               updatedAt: createdAt,
             });
@@ -73,6 +76,13 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
           });
 
           // TODO: Send prompt to backend for processing
+          await api.threads.create.$post({
+            json: {
+              prompt,
+              userProvidedThreadId: threadId,
+            },
+          });
+
           clearPrompt();
 
           navigate({
@@ -96,6 +106,7 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
       else {
         try {
           await createLocalThread({
+            threadId,
             createdAt,
             updatedAt: createdAt,
           });

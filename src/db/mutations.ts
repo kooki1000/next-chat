@@ -5,21 +5,24 @@ import { DEFAULT_THREAD_TITLE } from "@/lib/constants";
 
 interface LocalThreadParams {
   title?: string;
+  threadId: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export async function createLocalThread({
   title = DEFAULT_THREAD_TITLE,
+  threadId,
   createdAt = new Date(),
   updatedAt = new Date(),
-}: LocalThreadParams = {}) {
+}: LocalThreadParams) {
   await localDb.threads.add({
     _id: crypto.randomUUID() as Id<"threads">,
     _creationTime: createdAt.getTime(),
     title,
     userId: undefined,
-    userProvidedId: crypto.randomUUID() as Id<"threads">,
+    userProvidedId: threadId,
+    isPending: true,
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   });
