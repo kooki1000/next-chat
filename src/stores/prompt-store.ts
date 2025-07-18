@@ -21,6 +21,7 @@ interface PromptActions {
     isOnline: boolean,
     isAuthenticated: boolean,
     createThread: ReactMutation<FunctionReference<"mutation">>,
+    createClientMessage: ReactMutation<FunctionReference<"mutation">>,
     navigate: (options: { pathname: string }) => void,
     isRetry?: boolean
   ) => Promise<void>;
@@ -37,7 +38,14 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
   prompt: "",
   setPrompt: (prompt: string) => set({ prompt }),
   clearPrompt: () => set({ prompt: "" }),
-  handleSendMessage: async (isOnline, isAuthenticated, createThread, navigate, isRetry = false) => {
+  handleSendMessage: async (
+    isOnline,
+    isAuthenticated,
+    createThread,
+    createClientMessage,
+    navigate,
+    isRetry = false,
+  ) => {
     const { prompt, clearPrompt } = get();
 
     if (prompt.trim()) {
@@ -55,12 +63,14 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
 
       if (isOnline) {
         try {
+          // Create thread in Convex
           await createThread({
             title: DEFAULT_THREAD_TITLE,
             userProvidedId: threadId,
             createdAt: createdAt.toISOString(),
           });
 
+          // Create local thread if not authenticated
           if (!isAuthenticated) {
             await createLocalThread({
               threadId,
@@ -69,26 +79,46 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
             });
           }
 
-          await createLocalMessage({
+          // Create message in Convex
+          await createClientMessage({
             content: prompt,
-            threadId,
-            createdAt,
+            userProvidedId: crypto.randomUUID(),
+            userProvidedThreadId: threadId,
+            createdAt: createdAt.toISOString(),
           });
 
-          // TODO: Send prompt to backend for processing
-          await api.threads.create.$post({
-            json: {
-              prompt,
-              userProvidedThreadId: threadId,
-            },
-          });
+          if (!isAuthenticated) {
+            await createLocalMessage({
+              content: prompt,
+              threadId,
+              createdAt,
+            });
+          }
 
+          // Capture prompt before clearing for background API call
+          const promptForApi = prompt;
+
+          // Clear prompt and navigate optimistically
           clearPrompt();
 
           navigate({
             pathname: routes.chat.$buildPath({
               params: { threadId },
             }),
+          });
+
+          // Make API call in the background with captured prompt
+          api.threads.create.$post({
+            json: {
+              prompt: promptForApi,
+              userProvidedThreadId: threadId,
+            },
+          }).catch((error) => {
+            // Handle API error silently or show a subtle notification
+            console.error("Background API call failed:", error);
+            toast.error("Failed to sync with server", {
+              description: "Your message was saved locally but couldn't sync with the server.",
+            });
           });
         }
         catch (error) {
@@ -98,7 +128,7 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
               ? undefined
               : {
                   label: "Try again",
-                  onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, navigate, true),
+                  onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
                 },
           });
         }

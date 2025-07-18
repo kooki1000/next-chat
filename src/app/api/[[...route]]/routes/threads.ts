@@ -1,14 +1,13 @@
 import type { Doc } from "@/convex/_generated/dataModel";
 
-import { openai } from "@ai-sdk/openai";
-import { auth } from "@clerk/nextjs/server";
 import { zValidator } from "@hono/zod-validator";
-import { generateText } from "ai";
-import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { Hono } from "hono";
 
-import { api } from "@/convex/_generated/api";
 import { createThreadSchema } from "@/lib/schemas";
+import { generateThreadTitle } from "@/server/ai";
+import { checkAuthStatus } from "@/server/auth";
+import { updateThreadTitle } from "@/server/threads";
+import { getUserByExternalId } from "@/server/users";
 
 export const threadsRouter = new Hono()
   .post(
@@ -17,37 +16,47 @@ export const threadsRouter = new Hono()
     async (c) => {
       const { prompt, userProvidedThreadId } = c.req.valid("json");
 
+      const getUserResult = await checkAuthStatus();
+      if (getUserResult.isErr()) {
+        const error = getUserResult.error;
+        console.error(`${error.type} error: ${error.message}`, error.originalError);
+        return c.json({ error: error.message }, 500);
+      }
+
+      const { userId } = getUserResult.value;
       let user: Doc<"users"> | null = null;
 
-      const { userId } = await auth();
       if (userId) {
-        user = await fetchQuery(api.users.getUserByExternalId, {
-          externalId: userId,
-        });
+        const userDetailsResult = await getUserByExternalId(userId);
+
+        if (userDetailsResult.isErr()) {
+          const error = userDetailsResult.error;
+          console.error(`${error.type} error: ${error.message}`, error.originalError);
+          return c.json({ error: error.message }, 500);
+        }
+
+        user = userDetailsResult.value.user;
       }
 
-      const { text: title } = await generateText({
-        model: openai("gpt-3.5-turbo"),
-        temperature: 0.3,
-        prompt: `
-          Summarize the following text into a concise title of 7 to 10 words. Ensure the title captures the main idea effectively and is suitable for use as a thread title. 
-          Examples:
-            Input: 'A detailed guide on how to bake a cake.' Output: 'Guide to Baking a Cake'
-            Input: 'Exploring the wonders of the Amazon rainforest.' Output: 'Amazon Rainforest Wonders'
-            Input: 'Tips for improving productivity while working remotely.' Output: 'Remote Work Productivity Tips' 
-          Now, summarize: ${prompt}.`,
+      const titleResult = await generateThreadTitle(prompt);
+      if (titleResult.isErr()) {
+        const error = titleResult.error;
+        console.error(`${error.type} Error: ${error.message}`, error.originalError);
+        return c.json({ error: error.message }, 500);
+      }
+
+      const title = titleResult.value.title;
+
+      const updateResult = await updateThreadTitle({
+        userId: user?._id ?? undefined,
+        title,
+        userProvidedId: userProvidedThreadId,
       });
 
-      try {
-        await fetchMutation(api.threads.updateThreadOnServer, {
-          userId: user?._id ?? undefined,
-          title,
-          userProvidedId: userProvidedThreadId,
-        });
-      }
-      catch (error) {
-        console.error("Error updating thread on server:", error);
-        return c.json({ error: "Failed to update thread" }, 500);
+      if (updateResult.isErr()) {
+        const error = updateResult.error;
+        console.error(`${error.type} Error: ${error.message}`, error.originalError);
+        return c.json({ error: error.message }, 500);
       }
 
       return c.json({ message: "Chat created successfully" });

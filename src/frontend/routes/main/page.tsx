@@ -33,7 +33,10 @@ export function MainPage() {
   // Network and authentication states
   const { isAuthenticated } = useConvexAuth();
   const { online: isOnline } = useNetworkState();
+
+  // Mutations for creating threads and messages
   const createThread = useMutation(api.threads.createThread);
+  const createClientMessage = useMutation(api.messages.createClientMessage);
 
   const { prompt, setPrompt, handleSendMessage } = usePromptStore();
   const inputBoxRef = useRef<HTMLTextAreaElement | null>(null);
@@ -44,8 +47,14 @@ export function MainPage() {
   }, []);
 
   const onSendMessage = useCallback(() => {
-    handleSendMessage(isOnline, isAuthenticated, createThread, navigate);
-  }, [handleSendMessage, isOnline, isAuthenticated, createThread, navigate]);
+    handleSendMessage(
+      isOnline,
+      isAuthenticated,
+      createThread,
+      createClientMessage,
+      navigate,
+    );
+  }, [handleSendMessage, isOnline, isAuthenticated, createThread, createClientMessage, navigate]);
 
   useGlobalEnterKey({
     onEnter: onSendMessage,
