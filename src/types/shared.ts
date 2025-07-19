@@ -16,6 +16,5 @@ export interface ErrorResponse {
 
 export interface NetworkSuccess {
   success: true;
-  statusCode: number;
   data?: unknown;
 }

@@ -10,19 +10,18 @@ import "server-only";
  * Logs the error and throws an HTTPException.
  *
  * @param result - The Result object to handle
- * @param statusCode - HTTP status code to use when throwing (default: 500)
  * @returns The value if the result is Ok
  * @throws HTTPException if the result is Err
  */
-export function handleServerResult<T, E extends { type: string; message: string; originalError?: unknown }>(
+export function handleServerResult<T, E extends { type: string; message: string; status?: number; originalError?: unknown }>(
   result: Result<T, E>,
-  statusCode = 500,
 ): T {
   return result.match(
     value => value,
     (error) => {
       logError(error.type, error.message, error.originalError);
-      throw new HTTPException(statusCode as any, { message: error.message });
+      // @ts-expect-error: ConvexError is from Hono and has a different structure
+      throw new HTTPException(error.status || 500, { message: error.message });
     },
   );
 }

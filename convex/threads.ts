@@ -3,6 +3,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
 import { zid } from "convex-helpers/server/zod";
+import { ConvexError } from "convex/values";
 import { z } from "zod";
 
 import { query } from "./_generated/server";
@@ -40,8 +41,6 @@ export const createThread = zodMutation({
   },
 });
 
-// TODO: Implement proper server-side error handling using ConvexError
-// Reference: https://docs.convex.dev/functions/error-handling/application-errors
 export const updateThreadOnServer = zodMutation({
   args: {
     title: z.string(),
@@ -51,7 +50,10 @@ export const updateThreadOnServer = zodMutation({
   handler: async (ctx, args) => {
     const thread = await getThreadByUserProvidedId(ctx, args.userProvidedId);
     if (!thread) {
-      throw new Error(`Thread with userProvidedId ${args.userProvidedId} not found`);
+      throw new ConvexError({
+        code: 404,
+        message: `Thread with userProvidedId ${args.userProvidedId} not found`,
+      });
     }
 
     return await ctx.db.patch(thread._id, {

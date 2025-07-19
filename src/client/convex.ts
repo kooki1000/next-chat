@@ -1,8 +1,9 @@
 import type { ReactMutation } from "convex/react";
 import type { FunctionReference } from "convex/server";
 import type { Result } from "neverthrow";
-import type { ConvexError } from "@/types";
+import type { ConvexError, ConvexServerError } from "@/types";
 
+import { ConvexError as ConvexErrorTypes } from "convex/values";
 import { err, ok } from "neverthrow";
 
 import "client-only";
@@ -17,8 +18,6 @@ interface ConvexMutationParams<TMutation extends ReactMutation<FunctionReference
   args: TMutation extends ReactMutation<FunctionReference<"mutation", any, infer TArgs>> ? TArgs : never;
 }
 
-// TODO: Implement proper client-side error handling using ConvexError
-// Reference: https://docs.convex.dev/functions/error-handling/application-errors
 export async function convexMutation<TMutation extends ReactMutation<FunctionReference<"mutation">>>({
   mutation,
   errorMessage = "An error occurred",
@@ -29,6 +28,15 @@ export async function convexMutation<TMutation extends ReactMutation<FunctionRef
     return ok({ success: true });
   }
   catch (error) {
+    if (error instanceof ConvexErrorTypes) {
+      return err({
+        type: "convex",
+        message: (error.data as ConvexServerError).message,
+        status: (error.data as ConvexServerError).code,
+        originalError: error,
+      });
+    }
+
     return err({
       type: "convex",
       message: errorMessage,

@@ -1,8 +1,9 @@
 import type { Result } from "neverthrow";
 import type { Id } from "@/convex/_generated/dataModel";
-import type { ConvexError } from "@/types";
+import type { ConvexError, ConvexServerError } from "@/types";
 
 import { fetchMutation } from "convex/nextjs";
+import { ConvexError as ConvexErrorType } from "convex/values";
 import { err, ok } from "neverthrow";
 
 import { api } from "@/convex/_generated/api";
@@ -31,12 +32,21 @@ export async function updateThreadTitle({
       userProvidedId,
     });
 
-    return ok({ success: true });
+    return ok({ success: true, status: 201 });
   }
   catch (error) {
+    if (error instanceof ConvexErrorType) {
+      return err({
+        type: "convex",
+        message: (error.data as ConvexServerError).message,
+        status: (error.data as ConvexServerError).code,
+        originalError: error,
+      });
+    }
+
     return err({
       type: "convex",
-      message: "Failed to update thread title",
+      message: "Unexpected error occurred while updating thread title",
       originalError: error,
     });
   }

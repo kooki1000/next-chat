@@ -22,7 +22,7 @@ export async function createThreadTitle({ prompt, threadId }: CreateThreadTitleP
       return err({
         type: "api",
         message: `Failed to create thread title: ${response.statusText}`,
-        statusCode: response.status.toString(),
+        status: response.status,
       });
     }
 
@@ -31,14 +31,14 @@ export async function createThreadTitle({ prompt, threadId }: CreateThreadTitleP
       return err({
         type: "api",
         message: "Invalid response from server",
-        statusCode: response.status.toString(),
+        status: response.status,
       });
     }
 
     return ok({
       success: true,
       message: data.message,
-      statusCode: response.status,
+      status: response.status,
     });
   }
   catch (error) {
@@ -46,7 +46,7 @@ export async function createThreadTitle({ prompt, threadId }: CreateThreadTitleP
       type: "network",
       message: "Network error occurred while creating thread title",
       originalError: error,
-      statusCode: "500",
+      status: "500",
     });
   }
 }
