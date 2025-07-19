@@ -10,6 +10,9 @@
 !.yarn/releases
 !.yarn/versions
 
+# git hooks
+/.husky
+
 # testing
 /coverage
 
