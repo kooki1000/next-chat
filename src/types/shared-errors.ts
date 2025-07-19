@@ -1,6 +1,7 @@
 export interface BaseError {
   type: string;
   message: string;
+  code?: number;
   originalError?: unknown;
   context?: Record<string, unknown>;
 }

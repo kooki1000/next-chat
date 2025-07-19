@@ -32,7 +32,7 @@ export async function convexMutation<TMutation extends ReactMutation<FunctionRef
       return err({
         type: "convex",
         message: (error.data as ConvexServerError).message,
-        status: (error.data as ConvexServerError).code,
+        code: (error.data as ConvexServerError).code,
         originalError: error,
       });
     }

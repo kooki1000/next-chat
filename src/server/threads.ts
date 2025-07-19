@@ -18,6 +18,7 @@ interface UpdateThreadTitleParams {
 
 interface UpdateThreadTitleResponse {
   success: true;
+  code: number;
 }
 
 export async function updateThreadTitle({
@@ -32,14 +33,14 @@ export async function updateThreadTitle({
       userProvidedId,
     });
 
-    return ok({ success: true, status: 201 });
+    return ok({ success: true, code: 201 });
   }
   catch (error) {
     if (error instanceof ConvexErrorType) {
       return err({
         type: "convex",
         message: (error.data as ConvexServerError).message,
-        status: (error.data as ConvexServerError).code,
+        code: (error.data as ConvexServerError).code,
         originalError: error,
       });
     }

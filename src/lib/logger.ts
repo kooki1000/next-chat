@@ -13,7 +13,7 @@ import "server-only";
  * @returns The value if the result is Ok
  * @throws HTTPException if the result is Err
  */
-export function handleServerResult<T, E extends { type: string; message: string; status?: number; originalError?: unknown }>(
+export function handleServerResult<T, E extends { type: string; message: string; code?: number; originalError?: unknown }>(
   result: Result<T, E>,
 ): T {
   return result.match(
@@ -21,7 +21,7 @@ export function handleServerResult<T, E extends { type: string; message: string;
     (error) => {
       logError(error.type, error.message, error.originalError);
       // @ts-expect-error: ConvexError is from Hono and has a different structure
-      throw new HTTPException(error.status || 500, { message: error.message });
+      throw new HTTPException(error.code || 500, { message: error.message });
     },
   );
 }
