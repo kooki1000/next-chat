@@ -46,7 +46,7 @@ export const createClientMessage = zodMutation({
     return await insertMessage(ctx, {
       role: "user",
       content: args.content,
-      userId: user?._id ?? undefined,
+      userId: user?._id,
       userProvidedId: args.userProvidedId,
       threadId: thread._id,
       userProvidedThreadId: thread.userProvidedId,
@@ -98,7 +98,7 @@ export const syncLocalMessages = zodMutation({
         const syncedMessage = await insertMessage(ctx, {
           role: message.role,
           content: message.content,
-          userId: user?._id ?? undefined,
+          userId: user?._id,
           userProvidedId: message.userProvidedId,
           threadId: thread._id,
           userProvidedThreadId: thread.userProvidedId,

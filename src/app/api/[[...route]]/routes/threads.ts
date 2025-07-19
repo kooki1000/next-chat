@@ -30,7 +30,7 @@ export const threadsRouter = new Hono()
       const title = handleServerResult(titleResult).title;
 
       const updateResult = await updateThreadTitle({
-        userId: user?._id ?? undefined,
+        userId: user?._id,
         title,
         userProvidedId: userProvidedThreadId,
       });

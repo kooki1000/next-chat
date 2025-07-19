@@ -32,7 +32,7 @@ export const createThread = zodMutation({
     const user = await getCurrentUser(ctx);
     return await insertThread(ctx, {
       title: args.title,
-      userId: user?._id ?? undefined,
+      userId: user?._id,
       userProvidedId: args.userProvidedId,
       isPending: true,
       createdAt: args.createdAt,
@@ -58,7 +58,7 @@ export const updateThreadOnServer = zodMutation({
 
     return await ctx.db.patch(thread._id, {
       title: args.title,
-      userId: args.userId ?? undefined,
+      userId: args.userId,
       isPending: false,
       updatedAt: new Date().toISOString(),
     });
@@ -91,9 +91,9 @@ export const syncLocalThreads = zodMutation({
 
         const syncedThread = await insertThread(ctx, {
           title: thread.title,
-          userId: user?._id ?? undefined,
+          userId: user?._id,
           userProvidedId: thread.userProvidedId,
-          isPending: thread.isPending ?? undefined,
+          isPending: thread.isPending,
           createdAt: thread.createdAt,
           updatedAt: thread.updatedAt,
         });
