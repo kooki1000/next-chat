@@ -1,6 +1,9 @@
+import type { ErrorResponse } from "@/types";
+
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
+import { HTTPException } from "hono/http-exception";
 import { handle } from "hono/vercel";
 
 import { env } from "@/lib/env";
@@ -24,6 +27,33 @@ app.use(csrf({ origin: env.NEXT_PUBLIC_BASE_URL }));
 const routes = app
   .basePath("/api")
   .route("/threads", threadsRouter);
+
+app.onError((err, c) => {
+  if (err instanceof HTTPException) {
+    const errResponse
+      = err.res
+        ?? c.json<ErrorResponse>(
+          {
+            success: false,
+            error: err.message,
+          },
+          err.status,
+        );
+
+    return errResponse;
+  }
+
+  return c.json<ErrorResponse>(
+    {
+      success: false,
+      error:
+        env.NODE_ENV === "production"
+          ? "Internal Server Error"
+          : (err.stack ?? err.message),
+    },
+    500,
+  );
+});
 
 export const GET = handle(app);
 export const POST = handle(app);

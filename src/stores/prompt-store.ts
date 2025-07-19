@@ -1,12 +1,13 @@
 import type { ReactMutation } from "convex/react";
-import type { FunctionReference } from "convex/server";
+import type { api } from "@/convex/_generated/api";
 
 import { toast } from "sonner";
 import { create } from "zustand";
 
-import { createLocalMessage, createLocalThread } from "@/db/mutations";
+import { createThreadTitle } from "@/client/api";
+import { convexMutation } from "@/client/convex";
+import { createLocalMessage, createLocalThread } from "@/client/dexie";
 import { routes } from "@/frontend/routes";
-import { api } from "@/lib/api";
 import { DEFAULT_THREAD_TITLE } from "@/lib/constants";
 import { createMessageSchema } from "@/lib/schemas";
 
@@ -20,8 +21,8 @@ interface PromptActions {
   handleSendMessage: (
     isOnline: boolean,
     isAuthenticated: boolean,
-    createThread: ReactMutation<FunctionReference<"mutation">>,
-    createClientMessage: ReactMutation<FunctionReference<"mutation">>,
+    createThread: ReactMutation<typeof api.threads.createThread>,
+    createClientMessage: ReactMutation<typeof api.messages.createClientMessage>,
     navigate: (options: { pathname: string }) => void,
     isRetry?: boolean
   ) => Promise<void>;
@@ -48,123 +49,194 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
   ) => {
     const { prompt, clearPrompt } = get();
 
-    if (prompt.trim()) {
-      const messageValidation = createMessageSchema.safeParse({ content: prompt });
-      if (!messageValidation.success) {
-        toast.error("Error sending message", {
-          description: messageValidation.error.issues[0].message,
+    if (!prompt.trim())
+      return;
+
+    const messageValidation = createMessageSchema.safeParse({ content: prompt });
+    if (!messageValidation.success) {
+      toast.error("Error sending message", {
+        description: messageValidation.error.issues[0].message,
+      });
+
+      return;
+    }
+
+    const threadId = crypto.randomUUID();
+    const createdAt = new Date();
+
+    if (isOnline) {
+      const createThreadResult = await convexMutation({
+        mutation: createThread,
+        errorMessage: "Something went wrong while creating the thread",
+        args: {
+          title: DEFAULT_THREAD_TITLE,
+          userProvidedId: threadId,
+          createdAt: createdAt.toISOString(),
+        },
+      });
+
+      if (createThreadResult.isErr()) {
+        const error = createThreadResult.error;
+
+        console.error(`${error.type} error: ${error.message}`, error.originalError);
+        toast.error("Failed to create thread", {
+          description: error.message,
+          action: isRetry
+            ? undefined
+            : {
+                label: "Try again",
+                onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
+              },
         });
 
         return;
       }
 
-      const threadId = crypto.randomUUID();
-      const createdAt = new Date();
+      // Create local thread if not authenticated
+      if (!isAuthenticated) {
+        const createLocalThreadResult = await createLocalThread({
+          title: DEFAULT_THREAD_TITLE,
+          threadId,
+          createdAt,
+          updatedAt: createdAt,
+        });
 
-      if (isOnline) {
-        try {
-          // Create thread in Convex
-          await createThread({
-            title: DEFAULT_THREAD_TITLE,
-            userProvidedId: threadId,
-            createdAt: createdAt.toISOString(),
+        if (createLocalThreadResult.isErr()) {
+          const error = createLocalThreadResult.error;
+
+          console.error(`${error.type} error: ${error.message}`, error.originalError);
+          toast.error("Failed to save thread locally", {
+            description: "Your message was sent but the thread could not be saved locally.",
           });
 
-          // Create local thread if not authenticated
-          if (!isAuthenticated) {
-            await createLocalThread({
-              threadId,
-              createdAt,
-              updatedAt: createdAt,
-            });
-          }
-
-          // Create message in Convex
-          await createClientMessage({
-            content: prompt,
-            userProvidedId: crypto.randomUUID(),
-            userProvidedThreadId: threadId,
-            createdAt: createdAt.toISOString(),
-          });
-
-          if (!isAuthenticated) {
-            await createLocalMessage({
-              content: prompt,
-              threadId,
-              createdAt,
-            });
-          }
-
-          // Capture prompt before clearing for background API call
-          const promptForApi = prompt;
-
-          // Clear prompt and navigate optimistically
-          clearPrompt();
-
-          navigate({
-            pathname: routes.chat.$buildPath({
-              params: { threadId },
-            }),
-          });
-
-          // Make API call in the background with captured prompt
-          api.threads.create.$post({
-            json: {
-              prompt: promptForApi,
-              userProvidedThreadId: threadId,
-            },
-          }).catch((error) => {
-            // Handle API error silently or show a subtle notification
-            console.error("Background API call failed:", error);
-            toast.error("Failed to sync with server", {
-              description: "Your message was saved locally but couldn't sync with the server.",
-            });
-          });
-        }
-        catch (error) {
-          toast.error("Failed to create thread", {
-            description: error instanceof Error ? error.message : "Please check your connection and try again",
-            action: isRetry
-              ? undefined
-              : {
-                  label: "Try again",
-                  onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
-                },
-          });
+          return;
         }
       }
-      else {
-        try {
-          await createLocalThread({
-            threadId,
-            createdAt,
-            updatedAt: createdAt,
-          });
 
-          toast.success("Thread saved locally", {
-            description: "AI response will be available when you are back online.",
-          });
+      const createMessageResult = await convexMutation({
+        mutation: createClientMessage,
+        errorMessage: "Something went wrong while creating the message",
+        args: {
+          content: prompt,
+          userProvidedId: crypto.randomUUID(),
+          userProvidedThreadId: threadId,
+          createdAt: createdAt.toISOString(),
+        },
+      });
 
-          await createLocalMessage({
-            content: prompt,
-            threadId,
-            createdAt,
-          });
+      if (createMessageResult.isErr()) {
+        const error = createMessageResult.error;
 
-          clearPrompt();
+        console.error(`${error.type} error: ${error.message}`, error.originalError);
+        toast.error("Failed to create message", {
+          description: error.message,
+          action: isRetry
+            ? undefined
+            : {
+                label: "Try again",
+                onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
+              },
+        });
 
-          navigate({
-            pathname: routes.chat.$buildPath({
-              params: { threadId },
-            }),
-          });
-        }
-        catch {
-          toast.error("Failed to save locally", {
-            description: "Unable to create thread offline. Please try again.",
-          });
-        }
+        return;
       }
+
+      const createLocalMessageResult = await createLocalMessage({
+        content: prompt,
+        threadId,
+        createdAt,
+      });
+
+      if (createLocalMessageResult.isErr()) {
+        const error = createLocalMessageResult.error;
+
+        console.error(`${error.type} error: ${error.message}`, error.originalError);
+        toast.error("Failed to save message locally", {
+          description: "Your message was sent but could not be saved locally.",
+        });
+
+        return;
+      }
+
+      // Capture the current prompt value before clearing it, to avoid race conditions or stale values
+      // when making the background API call for thread title generation.
+      const promptForApi = prompt;
+      clearPrompt();
+
+      navigate({
+        pathname: routes.chat.$buildPath({
+          params: { threadId },
+        }),
+      });
+
+      const apiRequestResult = await createThreadTitle({
+        prompt: promptForApi,
+        threadId,
+      });
+
+      if (apiRequestResult.isErr()) {
+        const error = apiRequestResult.error;
+
+        console.error(`${error.type} error: ${error.message}`, error.originalError);
+        toast.error("Failed to create thread title", {
+          description: error.message,
+          action: isRetry
+            ? undefined
+            : {
+                label: "Try again",
+                onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
+              },
+        });
+
+        return;
+      }
+
+      return;
     }
+
+    const createLocalThreadResult = await createLocalThread({
+      title: DEFAULT_THREAD_TITLE,
+      threadId,
+      createdAt,
+      updatedAt: createdAt,
+    });
+
+    if (createLocalThreadResult.isErr()) {
+      const error = createLocalThreadResult.error;
+
+      console.error(`${error.type} error: ${error.message}`, error.originalError);
+      toast.error("Failed to save thread locally", {
+        description: "Your message was sent but the thread could not be saved locally.",
+      });
+
+      return;
+    }
+
+    const createLocalMessageResult = await createLocalMessage({
+      content: prompt,
+      threadId,
+      createdAt,
+    });
+
+    if (createLocalMessageResult.isErr()) {
+      const error = createLocalMessageResult.error;
+
+      console.error(`${error.type} error: ${error.message}`, error.originalError);
+      toast.error("Failed to save message locally", {
+        description: "Your message was sent but could not be saved locally.",
+      });
+
+      return;
+    }
+
+    toast.success("Message saved offline", {
+      description: "Your message has been saved. The AI will respond automatically when you're back online.",
+    });
+
+    navigate({
+      pathname: routes.chat.$buildPath({
+        params: { threadId },
+      }),
+    });
   },
 }));

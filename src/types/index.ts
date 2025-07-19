@@ -1,5 +1,4 @@
-import type { Doc } from "@/convex/_generated/dataModel";
-
-export type User = Doc<"users">;
-export type Thread = Doc<"threads">;
-export type Message = Doc<"messages">;
+export * from "./client-errors";
+export * from "./server-errors";
+export * from "./shared";
+export * from "./shared-errors";

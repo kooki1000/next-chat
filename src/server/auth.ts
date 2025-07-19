@@ -1,8 +1,10 @@
 import type { Result } from "neverthrow";
-import type { AuthError } from "@/lib/errors";
+import type { AuthError } from "@/types";
 
 import { auth } from "@clerk/nextjs/server";
 import { err, ok } from "neverthrow";
+
+import "server-only";
 
 interface AuthStatus {
   isAuthenticated: boolean;

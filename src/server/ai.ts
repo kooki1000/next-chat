@@ -1,9 +1,11 @@
 import type { Result } from "neverthrow";
-import type { AIError } from "@/lib/errors";
+import type { AIError } from "@/types";
 
 import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import { err, ok } from "neverthrow";
+
+import "server-only";
 
 interface ThreadTitle {
   title: string;

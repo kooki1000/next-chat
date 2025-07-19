@@ -40,6 +40,8 @@ export const createThread = zodMutation({
   },
 });
 
+// TODO: Implement proper server-side error handling using ConvexError
+// Reference: https://docs.convex.dev/functions/error-handling/application-errors
 export const updateThreadOnServer = zodMutation({
   args: {
     title: z.string(),

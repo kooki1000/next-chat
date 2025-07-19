@@ -1,11 +1,13 @@
 import type { Result } from "neverthrow";
 import type { Id } from "@/convex/_generated/dataModel";
-import type { DatabaseError } from "@/lib/errors";
+import type { ConvexError } from "@/types";
 
 import { fetchMutation } from "convex/nextjs";
 import { err, ok } from "neverthrow";
 
 import { api } from "@/convex/_generated/api";
+
+import "server-only";
 
 interface UpdateThreadTitleParams {
   userId?: Id<"users">;
@@ -21,7 +23,7 @@ export async function updateThreadTitle({
   userId,
   title,
   userProvidedId,
-}: UpdateThreadTitleParams): Promise<Result<UpdateThreadTitleResponse, DatabaseError>> {
+}: UpdateThreadTitleParams): Promise<Result<UpdateThreadTitleResponse, ConvexError>> {
   try {
     await fetchMutation(api.threads.updateThreadOnServer, {
       userId,
@@ -33,7 +35,7 @@ export async function updateThreadTitle({
   }
   catch (error) {
     return err({
-      type: "database",
+      type: "convex",
       message: "Failed to update thread title",
       originalError: error,
     });

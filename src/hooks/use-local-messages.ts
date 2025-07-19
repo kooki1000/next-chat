@@ -1,6 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-
-import { localDb } from "@/db/dexie";
+import { localDb } from "@/db";
 
 /**
  * A hook that provides access to messages from the local IndexedDB.

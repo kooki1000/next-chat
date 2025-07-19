@@ -1,7 +1,9 @@
 import type { Doc } from "@/convex/_generated/dataModel";
+import type { SuccessResponse } from "@/types";
 
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 
 import { createThreadSchema } from "@/lib/schemas";
 import { generateThreadTitle } from "@/server/ai";
@@ -20,7 +22,7 @@ export const threadsRouter = new Hono()
       if (getUserResult.isErr()) {
         const error = getUserResult.error;
         console.error(`${error.type} error: ${error.message}`, error.originalError);
-        return c.json({ error: error.message }, 500);
+        throw new HTTPException(500, { message: error.message });
       }
 
       const { userId } = getUserResult.value;
@@ -32,7 +34,7 @@ export const threadsRouter = new Hono()
         if (userDetailsResult.isErr()) {
           const error = userDetailsResult.error;
           console.error(`${error.type} error: ${error.message}`, error.originalError);
-          return c.json({ error: error.message }, 500);
+          throw new HTTPException(500, { message: error.message });
         }
 
         user = userDetailsResult.value.user;
@@ -42,7 +44,7 @@ export const threadsRouter = new Hono()
       if (titleResult.isErr()) {
         const error = titleResult.error;
         console.error(`${error.type} Error: ${error.message}`, error.originalError);
-        return c.json({ error: error.message }, 500);
+        throw new HTTPException(500, { message: error.message });
       }
 
       const title = titleResult.value.title;
@@ -56,9 +58,12 @@ export const threadsRouter = new Hono()
       if (updateResult.isErr()) {
         const error = updateResult.error;
         console.error(`${error.type} Error: ${error.message}`, error.originalError);
-        return c.json({ error: error.message }, 500);
+        throw new HTTPException(500, { message: error.message });
       }
 
-      return c.json({ message: "Chat created successfully" });
+      return c.json<SuccessResponse>({
+        success: true,
+        message: "Thread created successfully",
+      }, 201);
     },
   );
