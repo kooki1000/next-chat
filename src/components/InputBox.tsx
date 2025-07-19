@@ -14,6 +14,7 @@ interface InputBoxProps {
   onSend?: () => void;
   onAttach?: () => void;
   className?: string;
+  disabled?: boolean;
   ref?: React.RefObject<HTMLTextAreaElement | null>;
 }
 
@@ -25,6 +26,7 @@ export function InputBox({
   onSend,
   onAttach,
   className = "",
+  disabled = false,
   ref,
 }: InputBoxProps) {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -34,7 +36,7 @@ export function InputBox({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (onSend && value.trim()) {
+      if (onSend && value.trim() && !disabled) {
         onSend();
       }
     }
@@ -49,6 +51,7 @@ export function InputBox({
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        disabled={disabled}
         className={cn("max-h-[200px] min-h-[100px] resize-none overflow-y-auto pr-24 text-base", className)}
       />
 
@@ -60,6 +63,7 @@ export function InputBox({
           variant="ghost"
           className="h-8 w-8"
           onClick={onAttach}
+          disabled={disabled}
         >
           <Paperclip className="h-4 w-4" />
         </Button>
@@ -69,7 +73,7 @@ export function InputBox({
           size="icon"
           className="h-8 w-8"
           onClick={onSend}
-          disabled={!value.trim()}
+          disabled={!value.trim() || disabled}
         >
           <Send className="h-4 w-4" />
         </Button>

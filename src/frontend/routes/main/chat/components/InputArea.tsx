@@ -1,11 +1,7 @@
-import { useLocalStorage } from "@uidotdev/usehooks";
 import { useRef } from "react";
-import { useTypedParams } from "react-router-typesafe-routes";
 
 import { InputBox } from "@/components/InputBox";
 import { ModelSelector } from "@/components/ModelSelector";
-
-import { routes } from "@/frontend/routes";
 
 export interface InputAreaHandle {
   focus: () => void;
@@ -13,21 +9,26 @@ export interface InputAreaHandle {
 
 interface InputAreaProps {
   ref?: React.RefObject<InputAreaHandle | null>;
+  input: string;
+  onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  isLoading: boolean;
 }
 
-export function InputArea({ ref }: InputAreaProps) {
-  const { threadId } = useTypedParams(routes.chat);
-  const [input, setInput] = useLocalStorage(`thread-${threadId || "default"}`, "");
-
+export function InputArea({ ref, input, onInputChange, onSubmit, isLoading }: InputAreaProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSendMessage = () => {
-    if (!input.trim())
+    if (!input.trim() || isLoading)
       return;
 
-    // TODO: Implement actual message sending logic here
-    console.warn("Message sent:", input);
-    setInput("");
+    // Create a synthetic form event and submit
+    const syntheticEvent = {
+      preventDefault: () => {},
+      currentTarget: {} as HTMLFormElement,
+    } as React.FormEvent<HTMLFormElement>;
+
+    onSubmit(syntheticEvent);
   };
 
   // Expose the focus method through the ref
@@ -42,12 +43,22 @@ export function InputArea({ ref }: InputAreaProps) {
   return (
     <div className="flex-shrink-0 border-t p-4">
       <div className="mx-auto w-full max-w-3xl">
-        <InputBox
-          ref={textareaRef}
-          value={input}
-          onChange={setInput}
-          onSend={handleSendMessage}
-        />
+        <form onSubmit={onSubmit}>
+          <InputBox
+            ref={textareaRef}
+            value={input}
+            onChange={(value) => {
+              // Convert string to ChangeEvent for compatibility
+              const syntheticEvent = {
+                target: { value },
+                currentTarget: { value },
+              } as React.ChangeEvent<HTMLTextAreaElement>;
+              onInputChange(syntheticEvent);
+            }}
+            onSend={handleSendMessage}
+            disabled={isLoading}
+          />
+        </form>
 
         <div className="mt-3 flex items-center justify-between">
           <ModelSelector />
