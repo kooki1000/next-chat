@@ -10,6 +10,7 @@ import { createLocalMessage, createLocalThread } from "@/client/dexie";
 import { routes } from "@/frontend/routes";
 import { DEFAULT_THREAD_TITLE } from "@/lib/constants";
 import { createMessageSchema } from "@/lib/schemas";
+import { handleClientResult } from "@/lib/utils";
 
 interface PromptState {
   prompt: string;
@@ -75,22 +76,12 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
         },
       });
 
-      if (createThreadResult.isErr()) {
-        const error = createThreadResult.error;
+      const threadResult = handleClientResult(createThreadResult, {
+        title: "Failed to save thread locally",
+      });
 
-        console.error(`${error.type} error: ${error.message}`, error.originalError);
-        toast.error("Failed to create thread", {
-          description: error.message,
-          action: isRetry
-            ? undefined
-            : {
-                label: "Try again",
-                onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
-              },
-        });
-
+      if (!threadResult)
         return;
-      }
 
       // Create local thread if not authenticated
       if (!isAuthenticated) {
@@ -101,16 +92,13 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
           updatedAt: createdAt,
         });
 
-        if (createLocalThreadResult.isErr()) {
-          const error = createLocalThreadResult.error;
+        const localThreadResult = handleClientResult(createLocalThreadResult, {
+          title: "Failed to save thread locally",
+          description: "Your message was sent but the thread could not be saved locally.",
+        });
 
-          console.error(`${error.type} error: ${error.message}`, error.originalError);
-          toast.error("Failed to save thread locally", {
-            description: "Your message was sent but the thread could not be saved locally.",
-          });
-
+        if (!localThreadResult)
           return;
-        }
       }
 
       const createMessageResult = await convexMutation({
@@ -124,22 +112,14 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
         },
       });
 
-      if (createMessageResult.isErr()) {
-        const error = createMessageResult.error;
+      const messageResult = handleClientResult(createMessageResult, {
+        title: "Failed to create message",
+        showRetry: !isRetry,
+        onRetry: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
+      });
 
-        console.error(`${error.type} error: ${error.message}`, error.originalError);
-        toast.error("Failed to create message", {
-          description: error.message,
-          action: isRetry
-            ? undefined
-            : {
-                label: "Try again",
-                onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
-              },
-        });
-
+      if (!messageResult)
         return;
-      }
 
       const createLocalMessageResult = await createLocalMessage({
         content: prompt,
@@ -147,20 +127,18 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
         createdAt,
       });
 
-      if (createLocalMessageResult.isErr()) {
-        const error = createLocalMessageResult.error;
+      const localMessageResult = handleClientResult(createLocalMessageResult, {
+        title: "Failed to save message locally",
+        description: "Your message was sent but could not be saved locally.",
+      });
 
-        console.error(`${error.type} error: ${error.message}`, error.originalError);
-        toast.error("Failed to save message locally", {
-          description: "Your message was sent but could not be saved locally.",
-        });
-
+      if (!localMessageResult)
         return;
-      }
 
       // Capture the current prompt value before clearing it, to avoid race conditions or stale values
       // when making the background API call for thread title generation.
       const promptForApi = prompt;
+
       clearPrompt();
 
       navigate({
@@ -174,22 +152,14 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
         threadId,
       });
 
-      if (apiRequestResult.isErr()) {
-        const error = apiRequestResult.error;
+      const threadTitleResult = handleClientResult(apiRequestResult, {
+        title: "Failed to create thread title",
+        showRetry: !isRetry,
+        onRetry: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
+      });
 
-        console.error(`${error.type} error: ${error.message}`, error.originalError);
-        toast.error("Failed to create thread title", {
-          description: error.message,
-          action: isRetry
-            ? undefined
-            : {
-                label: "Try again",
-                onClick: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
-              },
-        });
-
+      if (!threadTitleResult)
         return;
-      }
 
       return;
     }
@@ -201,16 +171,13 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
       updatedAt: createdAt,
     });
 
-    if (createLocalThreadResult.isErr()) {
-      const error = createLocalThreadResult.error;
+    const localThreadResult = handleClientResult(createLocalThreadResult, {
+      title: "Failed to save thread locally",
+      description: "Your message was sent but the thread could not be saved locally.",
+    });
 
-      console.error(`${error.type} error: ${error.message}`, error.originalError);
-      toast.error("Failed to save thread locally", {
-        description: "Your message was sent but the thread could not be saved locally.",
-      });
-
+    if (!localThreadResult)
       return;
-    }
 
     const createLocalMessageResult = await createLocalMessage({
       content: prompt,
@@ -218,19 +185,18 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
       createdAt,
     });
 
-    if (createLocalMessageResult.isErr()) {
-      const error = createLocalMessageResult.error;
+    const localMessageResult = handleClientResult(createLocalMessageResult, {
+      title: "Failed to save message locally",
+      description: "Your message was sent but could not be saved locally.",
+    });
 
-      console.error(`${error.type} error: ${error.message}`, error.originalError);
-      toast.error("Failed to save message locally", {
-        description: "Your message was sent but could not be saved locally.",
-      });
-
+    if (!localMessageResult)
       return;
-    }
 
-    toast.success("Message saved offline", {
-      description: "Your message has been saved. The AI will respond automatically when you're back online.",
+    clearPrompt();
+
+    toast.success("Thread saved locally", {
+      description: "AI response will be available when you are back online.",
     });
 
     navigate({
