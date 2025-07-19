@@ -3,7 +3,9 @@ import * as z from "zod/v4";
 
 export const env = createEnv({
   server: {
+    NODE_ENV: z.enum(["development", "production"]).default("development"),
     CLERK_SECRET_KEY: z.string(),
+    OPENAI_API_KEY: z.string(),
   },
   client: {
     NEXT_PUBLIC_BASE_URL: z.url().default("http://localhost:3000"),
@@ -13,8 +15,10 @@ export const env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
   },
   runtimeEnv: {
-    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+    NODE_ENV: process.env.NODE_ENV,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
     NEXT_PUBLIC_CLERK_SIGN_IN_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL,
     NEXT_PUBLIC_CLERK_SIGN_UP_URL: process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL,

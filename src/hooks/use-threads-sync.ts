@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 
 import { api } from "@/convex/_generated/api";
-import { localDb } from "@/db/dexie";
+import { localDb } from "@/db";
 
 /**
  * A hook that syncs threads between Convex and the local IndexedDB.
@@ -114,9 +114,11 @@ export function useThreadsSync() {
           const localThreads = await localDb.threads.toArray();
 
           // Prepare threads for sync
+          // TODO: Add logic to handle `isPending`
           const threadsToSync = localThreads.map(thread => ({
             title: thread.title,
             userProvidedId: thread.userProvidedId,
+            isPending: thread.isPending,
             createdAt: thread.createdAt,
             updatedAt: thread.updatedAt,
           }));

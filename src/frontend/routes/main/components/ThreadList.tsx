@@ -1,11 +1,15 @@
-import { MessageSquare } from "lucide-react";
+import type { Thread } from "@/types";
+
+import { Loader, MessageSquare } from "lucide-react";
 import { Link } from "react-router";
+import { useTypedParams } from "react-router-typesafe-routes";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { routes } from "@/frontend/routes";
 import { useLocalThreads } from "@/hooks/use-local-threads";
+import { cn } from "@/lib/utils";
 
 export function ThreadList() {
   const threads = useLocalThreads();
@@ -29,24 +33,43 @@ export function ThreadList() {
         : (
             <>
               {threads.map(thread => (
-                <Button
-                  key={thread._id}
-                  variant="ghost"
-                  className="h-auto w-full justify-start p-2 text-left text-sm font-normal"
-                  asChild
-                >
-                  <Link
-                    to={routes.chat.$buildPath({
-                      params: { threadId: thread._id || thread.userProvidedId },
-                    })}
-                  >
-                    <MessageSquare className="mr-2 h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">{thread.title}</span>
-                  </Link>
-                </Button>
+                <ThreadListItem key={thread._id} thread={thread} />
               ))}
             </>
           )}
     </div>
+  );
+}
+
+function ThreadListItem({ thread }: { thread: Thread }) {
+  const { threadId } = useTypedParams(routes.chat);
+  return (
+    <Button
+      variant="ghost"
+      className={cn(
+        "h-auto w-full justify-start p-2 text-left text-sm font-normal",
+        thread._id === threadId || thread.userProvidedId === threadId
+          ? "bg-accent"
+          : "hover:bg-accent",
+      )}
+      asChild
+    >
+      <Link
+        to={routes.chat.$buildPath({
+          params: { threadId: thread._id || thread.userProvidedId },
+        })}
+      >
+        <div className="flex w-full items-center justify-between space-x-2">
+          <div className="flex min-w-0 items-center space-x-2">
+            <MessageSquare className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">{thread.title}</span>
+          </div>
+
+          {thread.isPending && (
+            <Loader className="h-4 w-4 flex-shrink-0 animate-spin text-muted-foreground" />
+          )}
+        </div>
+      </Link>
+    </Button>
   );
 }
