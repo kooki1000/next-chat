@@ -8,12 +8,9 @@ import { useTypedParams } from "react-router-typesafe-routes";
 
 import { routes } from "@/frontend/routes";
 import { useLocalMessages } from "@/hooks/use-local-messages";
+import { isLocalMessage } from "@/lib/utils";
 
-import {
-  AssistantMessage,
-  InputArea,
-  UserMessage,
-} from "./components";
+import { AssistantMessage, InputArea, UserMessage } from "./components";
 
 export function ChatPage() {
   const navigate = useNavigate();
@@ -26,7 +23,7 @@ export function ChatPage() {
     input,
     handleInputChange,
     handleSubmit,
-    isLoading,
+    status,
     error,
   } = useChat({
     api: "/api/chats",
@@ -38,6 +35,7 @@ export function ChatPage() {
   // Combine local messages and AI messages
   // Local messages take priority for persistence, AI messages for real-time streaming
   const displayMessages = aiMessages.length > 0 ? aiMessages : localMessages;
+  const isLoading = status === "submitted";
 
   // TODO: Redirect to home if threadId is not valid
   useEffect(() => {
@@ -73,7 +71,7 @@ export function ChatPage() {
               <div className="space-y-6 pb-2">
                 {displayMessages?.map((message, index) => {
                   // Handle both local messages and AI messages
-                  const messageKey = (message as any).id || (message as any)._id || index;
+                  const messageKey = isLocalMessage(message) ? message.userProvidedId : index;
                   return (
                     <div key={messageKey} className="space-y-4">
                       {message.role === "user"
@@ -86,6 +84,7 @@ export function ChatPage() {
                     </div>
                   );
                 })}
+
                 {isLoading && (
                   <div className="flex items-start gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-sm font-medium text-white">
@@ -99,10 +98,12 @@ export function ChatPage() {
                     </div>
                   </div>
                 )}
+
                 {error && (
                   <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
                     <p className="text-sm">
                       Failed to get AI response:
+                      {" "}
                       {error.message}
                     </p>
                   </div>

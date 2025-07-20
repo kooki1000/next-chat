@@ -11,8 +11,6 @@ import { createMessageSchema } from "@/lib/schemas";
 import { checkAuthStatus } from "@/server/auth";
 import { getUserByExternalId } from "@/server/users";
 
-import "server-only";
-
 export const chatsRouter = new Hono()
   .post(
     "/",
@@ -45,11 +43,11 @@ export const chatsRouter = new Hono()
           maxTokens: 2048,
         });
 
-        return stream(c, async (stream) => {
-          for await (const delta of result.textStream) {
-            await stream.write(delta);
-          }
-        });
+        // Mark the response as a v1 data stream:
+        c.header("X-Vercel-AI-Data-Stream", "v1");
+        c.header("Content-Type", "text/plain; charset=utf-8");
+
+        return stream(c, stream => stream.pipe(result.toDataStream()));
       }
       catch (error) {
         console.error("AI streaming error:", error);

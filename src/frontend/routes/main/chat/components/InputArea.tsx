@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import type { UseChatHelpers } from "@ai-sdk/react";
 
+import { useRef } from "react";
 import { InputBox } from "@/components/InputBox";
 import { ModelSelector } from "@/components/ModelSelector";
 
@@ -11,7 +12,7 @@ interface InputAreaProps {
   ref?: React.RefObject<InputAreaHandle | null>;
   input: string;
   onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: UseChatHelpers["handleSubmit"];
   isLoading: boolean;
 }
 

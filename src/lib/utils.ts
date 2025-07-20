@@ -1,5 +1,6 @@
 import type { ClassValue } from "clsx";
 import type { Result } from "neverthrow";
+import type { Message } from "@/types";
 
 import { clsx } from "clsx";
 import { toast } from "sonner";
@@ -55,5 +56,16 @@ export function handleClientResult<T, E extends { type: string; message: string;
 
       return null;
     },
+  );
+}
+
+export function isLocalMessage(message: any): message is Message {
+  return (
+    typeof message === "object"
+    && message !== null
+    && "_id" in message
+    && "_creationTime" in message
+    && "userProvidedId" in message
+    && "version" in message
   );
 }
