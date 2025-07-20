@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { handle } from "hono/vercel";
 
 import { env } from "@/lib/env";
+import { chatsRouter } from "./routes/chats";
 import { threadsRouter } from "./routes/threads";
 
 export const maxDuration = 30;
@@ -26,6 +27,7 @@ app.use(csrf({ origin: env.NEXT_PUBLIC_BASE_URL }));
 // eslint-disable-next-line unused-imports/no-unused-vars
 const routes = app
   .basePath("/api")
+  .route("/chats", chatsRouter)
   .route("/threads", threadsRouter);
 
 app.onError((err, c) => {

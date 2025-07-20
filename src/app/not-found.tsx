@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { Loader } from "@/components/Loader";
-
 import { routes } from "@/frontend/routes";
 
 export default function NotFound() {
