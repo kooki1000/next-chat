@@ -6,6 +6,7 @@ import { Hono } from "hono";
 
 import { handleServerResult } from "@/lib/logger";
 import { createThreadSchema } from "@/lib/schemas";
+
 import { generateThreadTitle } from "@/server/ai";
 import { checkAuthStatus } from "@/server/auth";
 import { updateThreadTitle } from "@/server/threads";

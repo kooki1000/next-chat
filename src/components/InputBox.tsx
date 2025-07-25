@@ -1,4 +1,5 @@
 import { Paperclip, Send } from "lucide-react";
+import React from "react";
 
 import { DEFAULT_MAX_LENGTH } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -29,10 +30,6 @@ export function InputBox({
   disabled = false,
   ref,
 }: InputBoxProps) {
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(e.target.value);
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -40,6 +37,10 @@ export function InputBox({
         onSend();
       }
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e.target.value);
   };
 
   return (

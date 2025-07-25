@@ -1,8 +1,9 @@
-import type { UseChatHelpers } from "@ai-sdk/react";
-
 import { useRef } from "react";
+
 import { InputBox } from "@/components/InputBox";
 import { ModelSelector } from "@/components/ModelSelector";
+
+import { useChat } from "@/hooks/use-chat";
 
 export interface InputAreaHandle {
   focus: () => void;
@@ -11,25 +12,36 @@ export interface InputAreaHandle {
 interface InputAreaProps {
   ref?: React.RefObject<InputAreaHandle | null>;
   input: string;
-  onInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  onSubmit: UseChatHelpers["handleSubmit"];
-  isLoading: boolean;
 }
 
-export function InputArea({ ref, input, onInputChange, onSubmit, isLoading }: InputAreaProps) {
+export function InputArea({ ref, input }: InputAreaProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const {
+    threadId,
+    handleSubmit,
+    handleInputChange,
+    status,
+  } = useChat();
+
+  const isLoading = status === "submitted";
 
   const handleSendMessage = () => {
     if (!input.trim() || isLoading)
       return;
 
-    // Create a synthetic form event and submit
-    const syntheticEvent = {
-      preventDefault: () => {},
-      currentTarget: {} as HTMLFormElement,
-    } as React.FormEvent<HTMLFormElement>;
+    handleSubmit(undefined, {
+      body: { threadId },
+    });
+  };
 
-    onSubmit(syntheticEvent);
+  // Adapter function to convert string to event for handleInputChange
+  const handleStringChange = (value: string) => {
+    const syntheticEvent = {
+      target: { value },
+    } as React.ChangeEvent<HTMLTextAreaElement>;
+
+    handleInputChange(syntheticEvent);
   };
 
   // Expose the focus method through the ref
@@ -44,18 +56,11 @@ export function InputArea({ ref, input, onInputChange, onSubmit, isLoading }: In
   return (
     <div className="flex-shrink-0 border-t p-4">
       <div className="mx-auto w-full max-w-3xl">
-        <form onSubmit={onSubmit}>
+        <form>
           <InputBox
             ref={textareaRef}
             value={input}
-            onChange={(value) => {
-              // Convert string to ChangeEvent for compatibility
-              const syntheticEvent = {
-                target: { value },
-                currentTarget: { value },
-              } as React.ChangeEvent<HTMLTextAreaElement>;
-              onInputChange(syntheticEvent);
-            }}
+            onChange={handleStringChange}
             onSend={handleSendMessage}
             disabled={isLoading}
           />

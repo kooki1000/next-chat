@@ -1,12 +1,11 @@
 import type { InputAreaHandle } from "./components";
 
-import { useChat } from "@ai-sdk/react";
 import { Loader } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
-import { useTypedParams } from "react-router-typesafe-routes";
 
 import { routes } from "@/frontend/routes";
+import { useChat } from "@/hooks/use-chat";
 import { useLocalMessages } from "@/hooks/use-local-messages";
 import { isLocalMessage } from "@/lib/utils";
 
@@ -14,21 +13,16 @@ import { AssistantMessage, InputArea, UserMessage } from "./components";
 
 export function ChatPage() {
   const navigate = useNavigate();
-  const { threadId } = useTypedParams(routes.chat);
-  const localMessages = useLocalMessages({ threadId });
 
-  // Initialize useChat hook for AI responses
   const {
+    threadId,
     messages: aiMessages,
     input,
-    handleInputChange,
-    handleSubmit,
     status,
     error,
-  } = useChat({
-    api: "/api/chats",
-    id: threadId,
-  });
+  } = useChat();
+
+  const localMessages = useLocalMessages({ threadId });
 
   const inputAreaRef = useRef<InputAreaHandle>(null);
 
@@ -116,9 +110,6 @@ export function ChatPage() {
       <InputArea
         ref={inputAreaRef}
         input={input}
-        onInputChange={handleInputChange}
-        onSubmit={handleSubmit}
-        isLoading={isLoading}
       />
     </div>
   );

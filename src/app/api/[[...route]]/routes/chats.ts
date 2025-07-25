@@ -2,45 +2,56 @@ import type { Doc } from "@/convex/_generated/dataModel";
 
 import { openai } from "@ai-sdk/openai";
 import { zValidator } from "@hono/zod-validator";
-import { streamText } from "ai";
+import { coreMessageSchema, streamText } from "ai";
+import { fetchMutation } from "convex/nextjs";
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
+import z from "zod";
 
+import { api } from "@/convex/_generated/api";
 import { handleServerResult } from "@/lib/logger";
-import { createMessageSchema } from "@/lib/schemas";
+
 import { checkAuthStatus } from "@/server/auth";
+import { getThreadById } from "@/server/threads";
 import { getUserByExternalId } from "@/server/users";
+
+const createChatSchema = z.object({
+  threadId: z.string(),
+  messages: z.array(coreMessageSchema).nonempty("At least one message is required"),
+});
 
 export const chatsRouter = new Hono()
   .post(
     "/",
-    zValidator("json", createMessageSchema),
+    zValidator("json", createChatSchema),
     async (c) => {
-      const { content } = c.req.valid("json");
+      const { threadId, messages } = c.req.valid("json");
 
       const { userId } = handleServerResult(await checkAuthStatus());
-      let _user: Doc<"users"> | null = null;
+      let user: Doc<"users"> | null = null;
 
       if (userId) {
         const userDetailsResult = await getUserByExternalId(userId);
-        _user = handleServerResult(userDetailsResult).user;
+        user = handleServerResult(userDetailsResult).user;
       }
+
+      const fetchThreadResult = await getThreadById({ userId: user?._id, threadId });
+      const thread = handleServerResult(fetchThreadResult).thread;
 
       try {
         const result = streamText({
           model: openai("gpt-3.5-turbo"),
-          messages: [
-            {
-              role: "system",
-              content: "You are a helpful assistant. Provide clear and concise responses to user questions.",
-            },
-            {
-              role: "user",
-              content,
-            },
-          ],
+          messages,
           temperature: 0.7,
-          maxTokens: 2048,
+          onFinish: async (result) => {
+            await fetchMutation(api.messages.createServerMessage, {
+              content: result.text,
+              userId: user?._id,
+              threadId: thread._id,
+              userProvidedThreadId: thread.userProvidedId,
+              createdAt: new Date().toISOString(),
+            });
+          },
         });
 
         // Mark the response as a v1 data stream:

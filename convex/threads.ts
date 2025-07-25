@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import { query } from "./_generated/server";
 import { getCurrentUser } from "./users";
-import { zodMutation } from "./utils";
+import { convexIdSchema, uuidSchema, zodMutation, zodQuery } from "./utils";
 
 export const getUserThreads = query({
   args: {},
@@ -19,6 +19,40 @@ export const getUserThreads = query({
     }
 
     return await getThreadsByUserId(ctx, user._id);
+  },
+});
+
+export const getThreadById = zodQuery({
+  args: {
+    userId: zid("users").optional(),
+    threadId: z.union([convexIdSchema("threads"), uuidSchema]),
+  },
+  handler: async (ctx, args) => {
+    let thread: Doc<"threads"> | null = null;
+
+    if (args.threadId.type === "uuid") {
+      thread = await getThreadByUserProvidedId(ctx, args.threadId.value);
+    }
+    else {
+      // @ts-expect-error: This is a workaround for the type system
+      thread = await ctx.db.get(args.threadId.value);
+    }
+
+    if (!thread) {
+      throw new ConvexError({
+        code: 404,
+        message: `Thread with ID ${args.threadId.value} not found`,
+      });
+    }
+
+    if (args.userId && thread.userId !== args.userId) {
+      throw new ConvexError({
+        code: 403,
+        message: "You do not have permission to access this thread",
+      });
+    }
+
+    return thread;
   },
 });
 
@@ -53,6 +87,13 @@ export const updateThreadOnServer = zodMutation({
       throw new ConvexError({
         code: 404,
         message: `Thread with userProvidedId ${args.userProvidedId} not found`,
+      });
+    }
+
+    if (args.userId && thread.userId !== args.userId) {
+      throw new ConvexError({
+        code: 403,
+        message: "You do not have permission to update this thread",
       });
     }
 
