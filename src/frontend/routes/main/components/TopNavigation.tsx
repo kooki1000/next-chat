@@ -4,7 +4,7 @@ import { Loader } from "lucide-react";
 import { Link } from "react-router";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 import { routes } from "@/frontend/routes";
 
@@ -24,9 +24,12 @@ export function TopNavigation() {
                 <UserButton />
               )
             : (
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={routes.signIn.$path()}>Sign In</Link>
-                </Button>
+                <Link
+                  to={routes.signIn.$path()}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  Sign In
+                </Link>
               )}
       </div>
     </header>

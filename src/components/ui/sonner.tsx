@@ -1,3 +1,4 @@
+/* eslint-disable better-tailwindcss/no-unregistered-classes */
 "use client";
 
 import type { ToasterProps } from "sonner";
@@ -10,7 +11,6 @@ function Toaster({ ...props }: ToasterProps) {
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
-      // eslint-disable-next-line better-tailwindcss/no-unregistered-classes
       className="toaster group"
       style={
         {

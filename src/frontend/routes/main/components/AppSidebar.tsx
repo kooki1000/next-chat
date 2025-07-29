@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Sidebar,
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { routes } from "@/frontend/routes";
+import { cn } from "@/lib/utils";
 
 import { ThreadList } from "./ThreadList";
 
@@ -88,12 +89,13 @@ export function AppSidebar() {
                 </SignOutButton>
               )
             : (
-                <Button variant="ghost" className="w-full justify-start gap-2" asChild>
-                  <Link to={routes.signIn.$path()}>
-                    <LogIn className="h-4 w-4" />
-                    <span>Sign In</span>
-                  </Link>
-                </Button>
+                <Link
+                  to={routes.signIn.$path()}
+                  className={cn(buttonVariants({ variant: "ghost" }), "w-full justify-start gap-2")}
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>Sign In</span>
+                </Link>
               )}
       </SidebarFooter>
     </Sidebar>

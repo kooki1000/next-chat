@@ -26,7 +26,7 @@ export function ModelSelector({
     <div className="flex items-center gap-2">
       <Select
         defaultValue={selectedModel}
-        onValueChange={onModelChange}
+        onValueChange={onModelChange ? value => onModelChange(value as string) : undefined}
       >
         <SelectTrigger className="w-40">
           <SelectValue />

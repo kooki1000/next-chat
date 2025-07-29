@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { useNetworkState } from "@uidotdev/usehooks";
 import { useConvexAuth, useMutation } from "convex/react";
 import { Code, GraduationCap, Search, Sparkles } from "lucide-react";
@@ -7,10 +8,11 @@ import { useNavigate } from "react-router";
 
 import { InputBox } from "@/components/InputBox";
 import { ModelSelector } from "@/components/ModelSelector";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 import { api } from "@/convex/_generated/api";
 import { useGlobalEnterKey } from "@/hooks/use-global-enter-key";
+import { cn } from "@/lib/utils";
 import { usePromptStore } from "@/stores/prompt-store";
 
 const categories = [
@@ -80,7 +82,6 @@ export function MainPage() {
         <div className="mb-8 space-y-3">
           {examplePrompts.map((example, index) => (
             <Button
-              // eslint-disable-next-line react/no-array-index-key
               key={index}
               variant="ghost"
               className="text-sm text-muted-foreground hover:text-foreground"
@@ -109,15 +110,23 @@ export function MainPage() {
           <div className="text-xs text-muted-foreground">
             Make sure you agree to our
             {" "}
-            <Button variant="link" className="h-auto p-0 text-xs underline" asChild>
-              <Link href="/terms-of-service" target="_blank">Terms</Link>
-            </Button>
+            <Link
+              href="/terms-of-service"
+              target="_blank"
+              className={cn(buttonVariants({ variant: "link" }), "h-auto p-0 text-xs underline")}
+            >
+              Terms
+            </Link>
             {" "}
             and our
             {" "}
-            <Button variant="link" className="h-auto p-0 text-xs underline" asChild>
-              <Link href="/privacy-policy" target="_blank">Privacy Policy</Link>
-            </Button>
+            <Link
+              href="/privacy-policy"
+              target="_blank"
+              className={cn(buttonVariants({ variant: "link" }), "h-auto p-0 text-xs underline")}
+            >
+              Privacy Policy
+            </Link>
           </div>
         </div>
       </div>

@@ -1,6 +1,8 @@
+/* eslint-disable react-dom/no-missing-button-type */
 import type { VariantProps } from "class-variance-authority";
 
-import { Slot } from "@radix-ui/react-slot";
+import { mergeProps } from "@base-ui-components/react";
+import { useRender } from "@base-ui-components/react/use-render";
 import { cva } from "class-variance-authority";
 import * as React from "react";
 
@@ -37,25 +39,29 @@ const buttonVariants = cva(
   },
 );
 
+export interface ButtonProps
+  extends VariantProps<typeof buttonVariants>,
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  useRender.ComponentProps<"button"> {}
+
 function Button({
   className,
   variant,
   size,
-  asChild = false,
+  render = <button />,
   ...props
-}: React.ComponentProps<"button">
-  & VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? Slot : "button";
+}: ButtonProps) {
+  const defaultProps = {
+    "data-slot": "button",
+    "className": cn(buttonVariants({ variant, size, className })),
+  } as const;
 
-  return (
-    <Comp
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+  const element = useRender({
+    render,
+    props: mergeProps<"button">(defaultProps, props),
+  });
+
+  return element;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
