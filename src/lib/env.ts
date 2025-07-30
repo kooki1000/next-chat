@@ -3,7 +3,7 @@ import * as z from "zod/v4";
 
 export const env = createEnv({
   server: {
-    NODE_ENV: z.enum(["development", "production"]).default("development"),
+    NODE_ENV: z.enum(["development", "production", "test"]),
     CLERK_SECRET_KEY: z.string(),
     OPENAI_API_KEY: z.string(),
   },
