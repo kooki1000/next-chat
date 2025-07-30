@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { handle } from "hono/vercel";
 
 import { env } from "@/lib/env";
+
 import { chatsRouter } from "./routes/chats";
 import { threadsRouter } from "./routes/threads";
 
@@ -15,14 +16,14 @@ export const maxDuration = 30;
 const app = new Hono();
 
 app.use("*", cors({
-  origin: env.NEXT_PUBLIC_BASE_URL,
+  origin: env.NEXT_PUBLIC_SITE_URL,
   allowMethods: ["GET", "POST"],
   allowHeaders: ["Authorization", "Content-Type"],
   maxAge: 600,
   credentials: true,
 }));
 
-app.use(csrf({ origin: env.NEXT_PUBLIC_BASE_URL }));
+app.use(csrf({ origin: env.NEXT_PUBLIC_SITE_URL }));
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 const routes = app

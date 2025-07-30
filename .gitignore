@@ -13,6 +13,9 @@
 # git hooks
 /.husky
 
+# vs code
+.vscode/mcp.json
+
 # testing
 /coverage
 
