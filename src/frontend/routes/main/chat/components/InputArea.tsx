@@ -18,7 +18,6 @@ export function InputArea({ ref, input }: InputAreaProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const {
-    threadId,
     handleSubmit,
     handleInputChange,
     status,
@@ -30,9 +29,7 @@ export function InputArea({ ref, input }: InputAreaProps) {
     if (!input.trim() || isLoading)
       return;
 
-    handleSubmit(undefined, {
-      body: { threadId },
-    });
+    handleSubmit();
   };
 
   // Adapter function to convert string to event for handleInputChange

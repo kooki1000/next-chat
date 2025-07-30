@@ -6,7 +6,6 @@ import { useNavigate } from "react-router";
 
 import { routes } from "@/frontend/routes";
 import { useChat } from "@/hooks/use-chat";
-import { useLocalMessages } from "@/hooks/use-local-messages";
 import { isLocalMessage } from "@/lib/utils";
 
 import { AssistantMessage, InputArea, UserMessage } from "./components";
@@ -20,14 +19,14 @@ export function ChatPage() {
     input,
     status,
     error,
+    localMessages,
   } = useChat();
-
-  const localMessages = useLocalMessages({ threadId });
 
   const inputAreaRef = useRef<InputAreaHandle>(null);
 
   // Combine local messages and AI messages
-  // Local messages take priority for persistence, AI messages for real-time streaming
+  // AI messages take priority when available (real-time streaming)
+  // Fall back to local messages for persistence
   const displayMessages = aiMessages.length > 0 ? aiMessages : localMessages;
   const isLoading = status === "submitted";
 
