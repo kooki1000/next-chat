@@ -1,17 +1,13 @@
-import { useNetworkState } from "@uidotdev/usehooks";
-import { useConvexAuth, useMutation } from "convex/react";
 import { Code, GraduationCap, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useRef } from "react";
 
 import { InputBox } from "@/components/InputBox";
 import { ModelSelector } from "@/components/ModelSelector";
 import { Button } from "@/components/ui/button";
 
-import { api } from "@/convex/_generated/api";
 import { useGlobalEnterKey } from "@/hooks/use-global-enter-key";
-import { usePromptStore } from "@/stores/prompt-store";
+import { useSendInitialMessage } from "@/hooks/use-send-initial-message";
 
 const categories = [
   { icon: Sparkles, label: "Create", color: "bg-purple-100 text-purple-700 hover:bg-purple-200" },
@@ -28,17 +24,8 @@ const examplePrompts = [
 ];
 
 export function MainPage() {
-  const navigate = useNavigate();
-
-  // Network and authentication states
-  const { isAuthenticated } = useConvexAuth();
-  const { online: isOnline } = useNetworkState();
-
-  // Mutations for creating threads and messages
-  const createThread = useMutation(api.threads.createThread);
-  const createClientMessage = useMutation(api.messages.createClientMessage);
-
-  const { prompt, setPrompt, handleSendMessage } = usePromptStore();
+  // Use the custom hook that encapsulates all the send message logic
+  const { prompt, setPrompt, handleSendMessage, hasContent } = useSendInitialMessage();
   const inputBoxRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Focus the input box when the component mounts
@@ -46,19 +33,9 @@ export function MainPage() {
     inputBoxRef.current?.focus();
   }, []);
 
-  const onSendMessage = useCallback(() => {
-    handleSendMessage(
-      isOnline,
-      isAuthenticated,
-      createThread,
-      createClientMessage,
-      navigate,
-    );
-  }, [handleSendMessage, isOnline, isAuthenticated, createThread, createClientMessage, navigate]);
-
   useGlobalEnterKey({
-    onEnter: onSendMessage,
-    hasContent: !!prompt.trim(),
+    onEnter: () => handleSendMessage(),
+    hasContent,
   });
 
   return (
@@ -98,7 +75,7 @@ export function MainPage() {
           ref={inputBoxRef}
           value={prompt}
           onChange={setPrompt}
-          onSend={onSendMessage}
+          onSend={() => handleSendMessage()}
           className="min-h-[120px]"
         />
 

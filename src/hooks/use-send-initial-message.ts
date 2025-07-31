@@ -1,55 +1,41 @@
-import type { ReactMutation } from "convex/react";
-import type { api } from "@/convex/_generated/api";
-
+import { useNetworkState } from "@uidotdev/usehooks";
+import { useConvexAuth, useMutation } from "convex/react";
+import { useAtom } from "jotai";
+import { useCallback } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { create } from "zustand";
 
+import { promptAtom } from "@/atoms";
 import { createThreadTitle } from "@/client/api";
 import { convexMutation } from "@/client/convex";
 import { createLocalMessage, createLocalThread } from "@/client/dexie";
+import { api } from "@/convex/_generated/api";
 import { routes } from "@/frontend/routes";
 import { DEFAULT_THREAD_TITLE } from "@/lib/constants";
 import { createMessageSchema } from "@/lib/schemas";
 import { handleClientResult } from "@/lib/utils";
 
-interface PromptState {
-  prompt: string;
-  setPrompt: (prompt: string) => void;
-  clearPrompt: () => void;
-}
-
-interface PromptActions {
-  handleSendMessage: (
-    isOnline: boolean,
-    isAuthenticated: boolean,
-    createThread: ReactMutation<typeof api.threads.createThread>,
-    createClientMessage: ReactMutation<typeof api.messages.createClientMessage>,
-    navigate: (options: { pathname: string }) => void,
-    isRetry?: boolean
-  ) => Promise<void>;
-}
-
-type PromptStore = PromptState & PromptActions;
-
 /**
- * Zustand store for managing the prompt input state and sending messages.
- * This store handles both online and offline scenarios, creating threads
- * and navigating to the chat page.
+ * Custom hook for sending messages in the chat application.
+ * Handles both online and offline scenarios, creates threads and messages,
+ * and navigates to the chat page after sending.
  */
-export const usePromptStore = create<PromptStore>((set, get) => ({
-  prompt: "",
-  setPrompt: (prompt: string) => set({ prompt }),
-  clearPrompt: () => set({ prompt: "" }),
-  handleSendMessage: async (
-    isOnline,
-    isAuthenticated,
-    createThread,
-    createClientMessage,
-    navigate,
-    isRetry = false,
-  ) => {
-    const { prompt, clearPrompt } = get();
+export function useSendInitialMessage() {
+  const navigate = useNavigate();
 
+  // Network and authentication states
+  const { isAuthenticated } = useConvexAuth();
+  const { online: isOnline } = useNetworkState();
+
+  // Mutations for creating threads and messages
+  const createThread = useMutation(api.threads.createThread);
+  const createClientMessage = useMutation(api.messages.createClientMessage);
+
+  // Prompt state management with Jotai
+  const [prompt, setPrompt] = useAtom(promptAtom);
+  const clearPrompt = useCallback(() => setPrompt(""), [setPrompt]);
+
+  const handleSendMessage = useCallback(async (isRetry = false) => {
     if (!prompt.trim())
       return;
 
@@ -115,7 +101,7 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
       const messageResult = handleClientResult(createMessageResult, {
         title: "Failed to create message",
         showRetry: !isRetry,
-        onRetry: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
+        onRetry: () => handleSendMessage(true),
       });
 
       if (!messageResult)
@@ -155,7 +141,7 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
       const threadTitleResult = handleClientResult(apiRequestResult, {
         title: "Failed to create thread title",
         showRetry: !isRetry,
-        onRetry: () => get().handleSendMessage(isOnline, isAuthenticated, createThread, createClientMessage, navigate, true),
+        onRetry: () => handleSendMessage(true),
       });
 
       if (!threadTitleResult)
@@ -164,6 +150,7 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
       return;
     }
 
+    // Offline scenario
     const createLocalThreadResult = await createLocalThread({
       title: DEFAULT_THREAD_TITLE,
       threadId,
@@ -204,5 +191,13 @@ export const usePromptStore = create<PromptStore>((set, get) => ({
         params: { threadId },
       }),
     });
-  },
-}));
+  }, [prompt, isOnline, isAuthenticated, createThread, createClientMessage, clearPrompt, navigate]);
+
+  return {
+    prompt,
+    setPrompt,
+    clearPrompt,
+    handleSendMessage,
+    hasContent: !!prompt.trim(),
+  };
+}

@@ -7,15 +7,10 @@ export type Message = Doc<"messages">;
 export type SuccessResponse<T = void> = {
   success: true;
   message: string;
+  code?: number;
 } & (T extends void ? object : { data: T });
 
 export interface ErrorResponse {
   success: false;
   error: string;
-}
-
-export interface NetworkSuccess {
-  success: true;
-  code: number;
-  data?: unknown;
 }

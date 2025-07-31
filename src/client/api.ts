@@ -1,5 +1,5 @@
 import type { Result } from "neverthrow";
-import type { ApiError, NetworkError, NetworkSuccess } from "@/types";
+import type { ApiError, NetworkError, SuccessResponse } from "@/types";
 
 import { err, ok } from "neverthrow";
 import { api } from "@/lib/api";
@@ -9,7 +9,7 @@ interface CreateThreadTitleParams {
   threadId: string;
 }
 
-export async function createThreadTitle({ prompt, threadId }: CreateThreadTitleParams): Promise<Result<NetworkSuccess, ApiError | NetworkError>> {
+export async function createThreadTitle({ prompt, threadId }: CreateThreadTitleParams): Promise<Result<SuccessResponse, ApiError | NetworkError>> {
   try {
     const response = await api.threads.create.$post({
       json: {

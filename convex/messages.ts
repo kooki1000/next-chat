@@ -2,6 +2,7 @@ import type { WithoutSystemFields } from "convex/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 
+import { zid } from "convex-helpers/server/zod";
 import z from "zod";
 
 import { DEFAULT_MAX_LENGTH } from "@/lib/constants";
@@ -51,6 +52,28 @@ export const createClientMessage = zodMutation({
       threadId: thread._id,
       userProvidedThreadId: thread.userProvidedId,
       version: args.version ?? 1,
+      createdAt: args.createdAt,
+    });
+  },
+});
+
+export const createServerMessage = zodMutation({
+  args: {
+    content: z.string().max(DEFAULT_MAX_LENGTH),
+    userId: zid("users").optional(),
+    threadId: zid("threads"),
+    userProvidedThreadId: z.string().uuid(),
+    createdAt: z.string().datetime(),
+  },
+  handler: async (ctx, args) => {
+    return insertMessage(ctx, {
+      role: "assistant",
+      content: args.content,
+      userId: args.userId,
+      userProvidedId: crypto.randomUUID(),
+      threadId: args.threadId,
+      userProvidedThreadId: args.userProvidedThreadId,
+      version: 1,
       createdAt: args.createdAt,
     });
   },

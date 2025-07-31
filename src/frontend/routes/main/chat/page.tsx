@@ -1,39 +1,31 @@
 import type { InputAreaHandle } from "./components";
 
-import { useChat } from "@ai-sdk/react";
 import { Loader } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
-import { useTypedParams } from "react-router-typesafe-routes";
 
 import { routes } from "@/frontend/routes";
-import { useLocalMessages } from "@/hooks/use-local-messages";
+import { useChat } from "@/hooks/use-chat";
 import { isLocalMessage } from "@/lib/utils";
 
 import { AssistantMessage, InputArea, UserMessage } from "./components";
 
 export function ChatPage() {
   const navigate = useNavigate();
-  const { threadId } = useTypedParams(routes.chat);
-  const localMessages = useLocalMessages({ threadId });
 
-  // Initialize useChat hook for AI responses
   const {
+    threadId,
     messages: aiMessages,
-    input,
-    handleInputChange,
-    handleSubmit,
     status,
     error,
-  } = useChat({
-    api: "/api/chats",
-    id: threadId,
-  });
+    localMessages,
+  } = useChat();
 
   const inputAreaRef = useRef<InputAreaHandle>(null);
 
   // Combine local messages and AI messages
-  // Local messages take priority for persistence, AI messages for real-time streaming
+  // AI messages take priority when available (real-time streaming)
+  // Fall back to local messages for persistence
   const displayMessages = aiMessages.length > 0 ? aiMessages : localMessages;
   const isLoading = status === "submitted";
 
@@ -113,13 +105,7 @@ export function ChatPage() {
           )}
 
       {/* Input Area */}
-      <InputArea
-        ref={inputAreaRef}
-        input={input}
-        onInputChange={handleInputChange}
-        onSubmit={handleSubmit}
-        isLoading={isLoading}
-      />
+      <InputArea ref={inputAreaRef} />
     </div>
   );
 }

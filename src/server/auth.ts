@@ -27,6 +27,7 @@ export async function checkAuthStatus(): Promise<Result<AuthStatus, AuthError>> 
     return err({
       type: "authentication",
       message: "Failed to authenticate user",
+      code: 401,
       originalError: error,
     });
   }
