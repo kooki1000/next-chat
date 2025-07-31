@@ -44,7 +44,7 @@ export function InputArea({ ref }: InputAreaProps) {
   return (
     <div className="flex-shrink-0 border-t p-4">
       <div className="mx-auto w-full max-w-3xl">
-        <form>
+        <form onSubmit={e => e.preventDefault()}>
           <InputBox
             ref={textareaRef}
             value={input}
