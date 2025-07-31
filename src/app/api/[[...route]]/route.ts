@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { handle } from "hono/vercel";
 
 import { env } from "@/lib/env";
+
 import { chatsRouter } from "./routes/chats";
 import { threadsRouter } from "./routes/threads";
 

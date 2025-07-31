@@ -34,8 +34,7 @@ export const getThreadById = zodQuery({
       thread = await getThreadByUserProvidedId(ctx, args.threadId.value);
     }
     else {
-      // @ts-expect-error: This is a workaround for the type system
-      thread = await ctx.db.get(args.threadId.value);
+      thread = await ctx.db.get(args.threadId.value as Id<"threads">);
     }
 
     if (!thread) {

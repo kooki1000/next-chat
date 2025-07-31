@@ -11,15 +11,15 @@ export interface InputAreaHandle {
 
 interface InputAreaProps {
   ref?: React.RefObject<InputAreaHandle | null>;
-  input: string;
 }
 
-export function InputArea({ ref, input }: InputAreaProps) {
+export function InputArea({ ref }: InputAreaProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const {
+    input,
+    setInput,
     handleSubmit,
-    handleInputChange,
     status,
   } = useChat();
 
@@ -30,15 +30,6 @@ export function InputArea({ ref, input }: InputAreaProps) {
       return;
 
     handleSubmit();
-  };
-
-  // Adapter function to convert string to event for handleInputChange
-  const handleStringChange = (value: string) => {
-    const syntheticEvent = {
-      target: { value },
-    } as React.ChangeEvent<HTMLTextAreaElement>;
-
-    handleInputChange(syntheticEvent);
   };
 
   // Expose the focus method through the ref
@@ -57,7 +48,7 @@ export function InputArea({ ref, input }: InputAreaProps) {
           <InputBox
             ref={textareaRef}
             value={input}
-            onChange={handleStringChange}
+            onChange={setInput}
             onSend={handleSendMessage}
             disabled={isLoading}
           />

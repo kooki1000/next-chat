@@ -44,13 +44,18 @@ export const chatsRouter = new Hono()
           messages,
           temperature: 0.7,
           onFinish: async (result) => {
-            await fetchMutation(api.messages.createServerMessage, {
-              content: result.text,
-              userId: user?._id,
-              threadId: thread._id,
-              userProvidedThreadId: thread.userProvidedId,
-              createdAt: new Date().toISOString(),
-            });
+            try {
+              await fetchMutation(api.messages.createServerMessage, {
+                content: result.text,
+                userId: user?._id,
+                threadId: thread._id,
+                userProvidedThreadId: thread.userProvidedId,
+                createdAt: new Date().toISOString(),
+              });
+            }
+            catch (error) {
+              console.error("Failed to save AI response:", error);
+            }
           },
         });
 

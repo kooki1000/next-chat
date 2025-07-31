@@ -16,7 +16,6 @@ export function ChatPage() {
   const {
     threadId,
     messages: aiMessages,
-    input,
     status,
     error,
     localMessages,
@@ -106,10 +105,7 @@ export function ChatPage() {
           )}
 
       {/* Input Area */}
-      <InputArea
-        ref={inputAreaRef}
-        input={input}
-      />
+      <InputArea ref={inputAreaRef} />
     </div>
   );
 }

@@ -1,13 +1,27 @@
 import type { Message } from "ai";
 
 import { useChat as useBaseChat } from "@ai-sdk/react";
-import { useEffect, useRef } from "react";
-
+import { useEffect, useReducer, useRef } from "react";
 import { useTypedParams } from "react-router-typesafe-routes";
+
 import { routes } from "@/frontend/routes";
 import { useLocalMessages } from "@/hooks/use-local-messages";
 
 const API_ENDPOINT = "/api/chats";
+
+interface ChatAction {
+  type: "SET_SHOULD_SUBMIT";
+  value: boolean;
+}
+
+function chatReducer(state: { shouldTriggerSubmit: boolean }, action: ChatAction) {
+  switch (action.type) {
+    case "SET_SHOULD_SUBMIT":
+      return { ...state, shouldTriggerSubmit: action.value };
+    default:
+      return state;
+  }
+}
 
 export function useChat() {
   const { threadId } = useTypedParams(routes.chat);
@@ -16,11 +30,14 @@ export function useChat() {
   }
 
   const localMessages = useLocalMessages({ threadId });
+
   const initializedThreadRef = useRef<string | null>(null);
+  const [state, dispatch] = useReducer(chatReducer, { shouldTriggerSubmit: false });
 
   const {
     messages,
     input,
+    setInput,
     handleInputChange,
     handleSubmit,
     status,
@@ -55,20 +72,24 @@ export function useChat() {
       // If the last message is from user and we don't have an AI response, trigger it
       const lastMessage = localMessages[localMessages.length - 1];
       if (lastMessage?.role === "user") {
-        // Use a small timeout to ensure messages are set first
-        const timeoutId = setTimeout(() => {
-          handleSubmit();
-        }, 100);
-
-        return () => clearTimeout(timeoutId);
+        dispatch({ type: "SET_SHOULD_SUBMIT", value: true });
       }
     }
-  }, [localMessages, messages, threadId, handleSubmit, setMessages]);
+  }, [localMessages, messages, threadId, setMessages, dispatch]);
+
+  // Trigger handleSubmit when shouldTriggerSubmit is true
+  useEffect(() => {
+    if (state.shouldTriggerSubmit) {
+      handleSubmit();
+      dispatch({ type: "SET_SHOULD_SUBMIT", value: false });
+    }
+  }, [state.shouldTriggerSubmit, handleSubmit, dispatch]);
 
   return {
     threadId,
     messages,
     input,
+    setInput,
     handleInputChange,
     handleSubmit,
     status,
