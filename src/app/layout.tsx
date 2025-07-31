@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
 
 import { Toaster } from "@/components/ui/sonner";
-
-import {
-  ClerkProvider,
-  ConvexClientProvider,
-  ThemeProvider,
-} from "@/providers";
+import { ClerkProvider, ConvexClientProvider, ThemeProvider } from "@/providers";
 
 import "@/styles.css";
 
