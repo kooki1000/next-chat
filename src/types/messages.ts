@@ -10,3 +10,4 @@ type Metadata = z.infer<typeof metadataSchema>;
 type DataPart = z.infer<typeof dataPartSchema>;
 
 export type UIMessagePart = BaseUIMessagePart<Metadata, DataPart>;
+export type { ReasoningUIPart } from "ai";

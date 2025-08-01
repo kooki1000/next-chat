@@ -1,7 +1,5 @@
 import type { UIMessagePart } from "@/types";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 export function UserMessage({ parts }: { parts: Array<UIMessagePart> }) {
   const isInvalid = parts.length === 0 || parts[0].type !== "text";
   return (
@@ -18,10 +16,6 @@ export function UserMessage({ parts }: { parts: Array<UIMessagePart> }) {
                 {parts[0].type === "text" ? parts[0].text : ""}
               </div>
             )}
-        <Avatar className="h-8 w-8">
-          <AvatarImage src="/placeholder.svg?height=32&width=32" />
-          <AvatarFallback>U</AvatarFallback>
-        </Avatar>
       </div>
     </div>
   );

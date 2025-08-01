@@ -1,19 +1,20 @@
 /* eslint-disable react/no-array-index-key */
-import type { UIMessagePart } from "@/types";
+import type { ReasoningUIPart, UIMessagePart } from "@/types";
 
-import { Copy, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
+import {
+  Copy,
+  RotateCcw,
+  ThumbsDown,
+  ThumbsUp,
+} from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+
+import { Reasoning } from "./Reasoning";
 
 export function AssistantMessage({ parts }: { parts: Array<UIMessagePart> }) {
   return (
-    <div className="flex items-start gap-3">
-      <Avatar className="h-8 w-8">
-        <AvatarImage src="/placeholder.svg?height=32&width=32" />
-        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">AI</AvatarFallback>
-      </Avatar>
-
+    <>
       {/* Message Content */}
       <div className="flex-1 space-y-4">
         <div className="prose prose-sm max-w-none dark:prose-invert">
@@ -27,28 +28,16 @@ export function AssistantMessage({ parts }: { parts: Array<UIMessagePart> }) {
                       if (paragraph.trim() === "")
                         return null;
 
-                      return <p key={pIndex}>{paragraph}</p>;
+                      return <p key={pIndex} className="my-0 gap-0">{paragraph}</p>;
                     })}
                   </div>
                 );
 
               case "reasoning":
-                return (
-                  <div key={index}>
-                    AI reasoning:
-                    {part.text}
-                  </div>
-                );
+                return <Reasoning key={index} index={index} part={part as ReasoningUIPart} />;
 
               default:
-                // Fallback for unknown parts
-                return (
-                  <div key={index}>
-                    Unsupported message part:
-                    {" "}
-                    {part.type}
-                  </div>
-                );
+                return null;
             }
           })}
         </div>
@@ -69,6 +58,6 @@ export function AssistantMessage({ parts }: { parts: Array<UIMessagePart> }) {
           </Button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
