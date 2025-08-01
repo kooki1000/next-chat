@@ -1,15 +1,13 @@
-import { useTheme } from "next-themes";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { coldarkCold, coldarkDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
+import { CodeBlock } from "@/components/CodeBlock";
+
 import "katex/dist/katex.min.css";
 
 export function MarkdownRenderer({ content }: { content: string }) {
-  const { resolvedTheme } = useTheme();
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkMath]}
@@ -17,16 +15,11 @@ export function MarkdownRenderer({ content }: { content: string }) {
       components={{
         code({ node, className, children, style, ref, ...props }) {
           const match = /language-(\w+)/.exec(className || "");
+          const codeContent = String(children).replace(/\n$/, "");
+
           return match
             ? (
-                <SyntaxHighlighter
-                  language={match[1]}
-                  style={resolvedTheme && resolvedTheme === "light" ? coldarkCold : coldarkDark}
-                  PreTag="div"
-                  {...props}
-                >
-                  {String(children).replace(/\n$/, "")}
-                </SyntaxHighlighter>
+                <CodeBlock language={match[1]} code={codeContent} />
               )
             : (
                 <code className={className} {...props}>
