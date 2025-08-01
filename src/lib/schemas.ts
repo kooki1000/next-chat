@@ -10,8 +10,3 @@ export const createThreadSchema = z.object({
   prompt: z.string().max(DEFAULT_MAX_LENGTH),
   userProvidedThreadId: z.uuid({ version: "v4" }),
 });
-
-export const partsSchema = z.array(z.object({
-  type: z.enum(["text", "reasoning"]),
-  text: z.string(),
-}));
