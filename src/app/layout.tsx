@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 
 import { Toaster } from "@/components/ui/sonner";
-import { ClerkProvider, ConvexClientProvider, ThemeProvider } from "@/providers";
+import {
+  ClerkProvider,
+  ConvexClientProvider,
+  ThemeProvider,
+} from "@/providers";
 
 import "@/styles.css";
 
@@ -12,9 +16,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       {/* eslint-disable-next-line better-tailwindcss/no-unregistered-classes */}

@@ -4,7 +4,7 @@ export function UserMessage({ parts }: { parts: Array<UIMessagePart> }) {
   const isInvalid = parts.length === 0 || parts[0].type !== "text";
   return (
     <div className="flex justify-end">
-      <div className="flex max-w-[80%] items-start gap-3">
+      <div className="prose prose-sm max-w-none dark:prose-invert">
         {isInvalid
           ? (
               <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">

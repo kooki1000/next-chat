@@ -3,7 +3,7 @@ import type { ReasoningUIPart } from "@/types";
 import { CircleCheck } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-export function Reasoning({ index, part }: { index: number; part: ReasoningUIPart }) {
+export function ReasoningDisplay({ index, part }: { index: number; part: ReasoningUIPart }) {
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value={`reasoning-${index}`} className="outline-none">

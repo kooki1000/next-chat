@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import type { ReasoningUIPart, UIMessagePart } from "@/types";
+import type { UIMessagePart } from "@/types";
 
 import {
   Copy,
@@ -10,11 +10,12 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import { Reasoning } from "./Reasoning";
+import { MarkdownRenderer } from "./MarkdownRenderer";
+import { ReasoningDisplay } from "./ReasoningDisplay";
 
 export function AssistantMessage({ parts }: { parts: Array<UIMessagePart> }) {
   return (
-    <>
+    <div>
       {/* Message Content */}
       <div className="flex-1 space-y-4">
         <div className="prose prose-sm max-w-none dark:prose-invert">
@@ -22,19 +23,10 @@ export function AssistantMessage({ parts }: { parts: Array<UIMessagePart> }) {
             // Handle different part types
             switch (part.type) {
               case "text":
-                return (
-                  <div key={index}>
-                    {part.text.split("\n").map((paragraph, pIndex) => {
-                      if (paragraph.trim() === "")
-                        return null;
-
-                      return <p key={pIndex} className="my-0 gap-0">{paragraph}</p>;
-                    })}
-                  </div>
-                );
+                return <MarkdownRenderer key={index} content={part.text} />;
 
               case "reasoning":
-                return <Reasoning key={index} index={index} part={part as ReasoningUIPart} />;
+                return <ReasoningDisplay key={index} index={index} part={part} />;
 
               default:
                 return null;
@@ -58,6 +50,6 @@ export function AssistantMessage({ parts }: { parts: Array<UIMessagePart> }) {
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

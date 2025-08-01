@@ -3,7 +3,6 @@ import { DefaultChatTransport } from "ai";
 import { useState } from "react";
 import { useTypedParams } from "react-router-typesafe-routes";
 
-import { dummyMessages } from "@/data";
 import { routes } from "@/frontend/routes";
 import { useLocalMessages } from "@/hooks/use-local-messages";
 
@@ -27,7 +26,7 @@ export function useChat() {
   })) || [];
 
   const {
-    // messasges,
+    messages,
     sendMessage,
     status,
     error,
@@ -53,7 +52,7 @@ export function useChat() {
 
   return {
     threadId,
-    messages: dummyMessages,
+    messages,
     input,
     setInput,
     handleInputChange,
