@@ -2,11 +2,10 @@ import type { Doc } from "@/convex/_generated/dataModel";
 
 import { openai } from "@ai-sdk/openai";
 import { zValidator } from "@hono/zod-validator";
-import { coreMessageSchema, streamText } from "ai";
+import { modelMessageSchema, streamText } from "ai";
 import { fetchMutation } from "convex/nextjs";
 import { Hono } from "hono";
-import { stream } from "hono/streaming";
-import z from "zod";
+import * as z from "zod/v4";
 
 import { api } from "@/convex/_generated/api";
 import { handleServerResult } from "@/lib/logger";
@@ -17,7 +16,7 @@ import { getUserByExternalId } from "@/server/users";
 
 const createChatSchema = z.object({
   threadId: z.string(),
-  messages: z.array(coreMessageSchema).nonempty("At least one message is required"),
+  messages: z.array(modelMessageSchema).nonempty("At least one message is required"),
 });
 
 export const chatsRouter = new Hono()
@@ -38,42 +37,34 @@ export const chatsRouter = new Hono()
       const fetchThreadResult = await getThreadById({ userId: user?._id, threadId });
       const thread = handleServerResult(fetchThreadResult).thread;
 
-      try {
-        const result = streamText({
-          model: openai("gpt-3.5-turbo"),
-          messages,
-          temperature: 0.7,
-          onFinish: async (result) => {
-            try {
-              await fetchMutation(api.messages.createServerMessage, {
-                content: result.text,
-                userId: user?._id,
-                threadId: thread._id,
-                userProvidedThreadId: thread.userProvidedId,
-                createdAt: new Date().toISOString(),
-              });
-            }
-            catch (error) {
-              console.error("Failed to save AI response:", error);
-            }
-          },
-        });
+      const result = streamText({
+        model: openai("gpt-3.5-turbo"),
+        messages,
+        temperature: 0.7,
+        onFinish: async (result) => {
+          try {
+            await fetchMutation(api.messages.createServerMessage, {
+              parts: result.content
+                .filter(
+                  (part): part is { text: string; type: "text" | "reasoning" } =>
+                    (part.type === "text" || part.type === "reasoning") && typeof (part as any).text === "string",
+                )
+                .map(part => ({
+                  text: (part as any).text,
+                  type: part.type,
+                })),
+              userId: user?._id,
+              threadId: thread._id,
+              userProvidedThreadId: thread.userProvidedId,
+              createdAt: new Date().toISOString(),
+            });
+          }
+          catch (error) {
+            console.error("Failed to save AI response:", error);
+          }
+        },
+      });
 
-        // Mark the response as a v1 data stream:
-        c.header("X-Vercel-AI-Data-Stream", "v1");
-        c.header("Content-Type", "text/plain; charset=utf-8");
-
-        return stream(c, stream => stream.pipe(result.toDataStream()));
-      }
-      catch (error) {
-        console.error("AI streaming error:", error);
-        return c.json(
-          {
-            success: false,
-            error: "Failed to generate AI response",
-          },
-          500,
-        );
-      }
+      return result.toUIMessageStreamResponse();
     },
   );

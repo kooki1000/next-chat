@@ -23,9 +23,7 @@ export function ChatPage() {
 
   const inputAreaRef = useRef<InputAreaHandle>(null);
 
-  // Combine local messages and AI messages
   // AI messages take priority when available (real-time streaming)
-  // Fall back to local messages for persistence
   const displayMessages = aiMessages.length > 0 ? aiMessages : localMessages;
   const isLoading = status === "submitted";
 
@@ -68,10 +66,10 @@ export function ChatPage() {
                     <div key={messageKey} className="space-y-4">
                       {message.role === "user"
                         ? (
-                            <UserMessage content={message.content} />
+                            <UserMessage parts={message.parts} />
                           )
                         : (
-                            <AssistantMessage content={message.content} />
+                            <AssistantMessage parts={message.parts} />
                           )}
                     </div>
                   );

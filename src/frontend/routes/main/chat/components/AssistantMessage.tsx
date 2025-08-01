@@ -1,19 +1,12 @@
 /* eslint-disable react/no-array-index-key */
-import {
-  Copy,
-  RotateCcw,
-  ThumbsDown,
-  ThumbsUp,
-} from "lucide-react";
+import type { UIMessagePart } from "@/types";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Copy, RotateCcw, ThumbsDown, ThumbsUp } from "lucide-react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-export function AssistantMessage({ content }: { content: string }) {
+export function AssistantMessage({ parts }: { parts: Array<UIMessagePart> }) {
   return (
     <div className="flex items-start gap-3">
       <Avatar className="h-8 w-8">
@@ -24,39 +17,39 @@ export function AssistantMessage({ content }: { content: string }) {
       {/* Message Content */}
       <div className="flex-1 space-y-4">
         <div className="prose prose-sm max-w-none dark:prose-invert">
-          {content.split("\n").map((paragraph, index) => {
-            if (paragraph.trim() === "")
-              return null;
+          {parts.map((part, index) => {
+            // Handle different part types
+            switch (part.type) {
+              case "text":
+                return (
+                  <div key={index}>
+                    {part.text.split("\n").map((paragraph, pIndex) => {
+                      if (paragraph.trim() === "")
+                        return null;
 
-            // Handle bold text
-            if (paragraph.startsWith("**") && paragraph.endsWith("**")) {
-              return (
-                <h3 key={index} className="mt-4 mb-2 text-base font-semibold">
-                  {paragraph.slice(2, -2)}
-                </h3>
-              );
+                      return <p key={pIndex}>{paragraph}</p>;
+                    })}
+                  </div>
+                );
+
+              case "reasoning":
+                return (
+                  <div key={index}>
+                    AI reasoning:
+                    {part.text}
+                  </div>
+                );
+
+              default:
+                // Fallback for unknown parts
+                return (
+                  <div key={index}>
+                    Unsupported message part:
+                    {" "}
+                    {part.type}
+                  </div>
+                );
             }
-
-            // Handle bullet points
-            if (paragraph.startsWith("• ")) {
-              return (
-                <div key={index} className="mb-2 ml-4">
-                  <span className="font-medium">
-                    {paragraph.slice(2).split(":")[0]}
-                    :
-                  </span>
-                  {paragraph.slice(2).includes(":") && (
-                    <span className="ml-1">{paragraph.slice(2).split(":").slice(1).join(":")}</span>
-                  )}
-                </div>
-              );
-            }
-
-            return (
-              <p key={index} className="mb-3 leading-relaxed">
-                {paragraph}
-              </p>
-            );
           })}
         </div>
 

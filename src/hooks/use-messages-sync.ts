@@ -119,7 +119,7 @@ export function useMessagesSync() {
               message.userProvidedThreadId && (message.role === "user"),
             )
             .map(message => ({
-              content: message.content,
+              parts: message.parts,
               userProvidedId: message.userProvidedId,
               userProvidedThreadId: message.userProvidedThreadId as string,
               role: message.role as "user",

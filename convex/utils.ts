@@ -18,3 +18,8 @@ export const uuidSchema = z.string().uuid().transform(val => ({
   type: "uuid" as const,
   value: val,
 }));
+
+export const partsSchema = z.array(z.object({
+  type: z.enum(["text", "reasoning"]),
+  text: z.string(),
+}));

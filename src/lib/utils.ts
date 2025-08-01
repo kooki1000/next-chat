@@ -17,14 +17,6 @@ export function logError(type: string, message: string, originalError?: unknown)
 /**
  * Utility function to handle Result errors on the client side.
  * Logs the error, shows a toast notification, and returns null if error.
- *
- * @param result - The Result object to handle
- * @param options - Configuration options for error handling
- * @param options.title - Title for the error toast
- * @param options.description - Custom description for the toast (defaults to error.message)
- * @param options.onRetry - Optional retry action
- * @param options.showRetry - Whether to show the retry button (defaults to true if onRetry is provided)
- * @returns The value if Ok, null if Err
  */
 export function handleClientResult<T, E extends { type: string; message: string; originalError?: unknown }>(
   result: Result<T, E>,

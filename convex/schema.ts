@@ -28,7 +28,15 @@ export default defineSchema({
       v.literal("system"),
       v.literal("tool"),
     ),
-    content: v.string(),
+    parts: v.array(
+      v.object({
+        type: v.union(
+          v.literal("text"),
+          v.literal("reasoning"),
+        ),
+        text: v.string(),
+      }),
+    ),
     userId: v.optional(v.id("users")),
     userProvidedId: v.string(),
     threadId: v.id("threads"),

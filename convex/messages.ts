@@ -5,12 +5,10 @@ import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { zid } from "convex-helpers/server/zod";
 import z from "zod";
 
-import { DEFAULT_MAX_LENGTH } from "@/lib/constants";
-
 import { query } from "./_generated/server";
 import { getThreadByUserProvidedId } from "./threads";
 import { getCurrentUser } from "./users";
-import { zodMutation } from "./utils";
+import { partsSchema, zodMutation } from "./utils";
 
 export const getUserMessages = query({
   args: {},
@@ -26,7 +24,7 @@ export const getUserMessages = query({
 
 export const createClientMessage = zodMutation({
   args: {
-    content: z.string().max(DEFAULT_MAX_LENGTH),
+    parts: partsSchema,
     userProvidedId: z.string().uuid(),
     userProvidedThreadId: z.string().uuid(),
     version: z.number().optional(),
@@ -46,7 +44,7 @@ export const createClientMessage = zodMutation({
 
     return await insertMessage(ctx, {
       role: "user",
-      content: args.content,
+      parts: args.parts,
       userId: user?._id,
       userProvidedId: args.userProvidedId,
       threadId: thread._id,
@@ -59,7 +57,7 @@ export const createClientMessage = zodMutation({
 
 export const createServerMessage = zodMutation({
   args: {
-    content: z.string().max(DEFAULT_MAX_LENGTH),
+    parts: partsSchema,
     userId: zid("users").optional(),
     threadId: zid("threads"),
     userProvidedThreadId: z.string().uuid(),
@@ -68,7 +66,7 @@ export const createServerMessage = zodMutation({
   handler: async (ctx, args) => {
     return insertMessage(ctx, {
       role: "assistant",
-      content: args.content,
+      parts: args.parts,
       userId: args.userId,
       userProvidedId: crypto.randomUUID(),
       threadId: args.threadId,
@@ -83,7 +81,7 @@ export const syncLocalMessages = zodMutation({
   args: {
     messages: z.array(z.object({
       role: z.enum(["user", "assistant", "system", "tool"]),
-      content: z.string().max(4000),
+      parts: partsSchema,
       userProvidedId: z.string().uuid(),
       userProvidedThreadId: z.string().uuid(),
       version: z.number().optional(),
@@ -120,7 +118,7 @@ export const syncLocalMessages = zodMutation({
 
         const syncedMessage = await insertMessage(ctx, {
           role: message.role,
-          content: message.content,
+          parts: message.parts,
           userId: user?._id,
           userProvidedId: message.userProvidedId,
           threadId: thread._id,
