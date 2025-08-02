@@ -1,6 +1,6 @@
 import { useChat as useBaseChat } from "@ai-sdk/react";
+import { useLocalStorage } from "@uidotdev/usehooks";
 import { DefaultChatTransport } from "ai";
-import { useState } from "react";
 import { useTypedParams } from "react-router-typesafe-routes";
 
 import { routes } from "@/frontend/routes";
@@ -14,8 +14,9 @@ export function useChat() {
     throw new Error("useChat: threadId param is missing. Ensure the route provides a threadId.");
   }
 
+  // TODO: Add clear logic when thread is deleted
+  const [input, setInput] = useLocalStorage(`thread-${threadId}-input`, "");
   const localMessages = useLocalMessages({ threadId });
-  const [input, setInput] = useState("");
 
   // Convert local messages to UI format for initial context
   const initialMessages = localMessages?.map(msg => ({

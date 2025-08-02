@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coldarkCold, coldarkDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, getFileExtension } from "@/lib/utils";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
@@ -17,10 +17,23 @@ interface CodeBlockProps {
 
 export function CodeBlock({ language, code, className = "" }: CodeBlockProps) {
   const { resolvedTheme } = useTheme();
-  const [_copiedText, copyToClipboard] = useCopyToClipboard();
+  const [_, copyToClipboard] = useCopyToClipboard();
 
-  // TODO: Implement download functionality
-  const handleDownload = () => {};
+  const handleDownload = () => {
+    const extension = getFileExtension(language);
+    const blob = new Blob([String(code)], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = `code.${extension}`;
+
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   // TODO: Implement expand functionality
   const handleExpand = () => {};
@@ -42,6 +55,9 @@ export function CodeBlock({ language, code, className = "" }: CodeBlockProps) {
       title: "Expand",
     },
   ];
+
+  // Select syntax highlighter style based on theme
+  const syntaxStyle = resolvedTheme === "light" ? coldarkCold : coldarkDark;
 
   return (
     <div className={cn("group relative", className)}>
@@ -74,7 +90,7 @@ export function CodeBlock({ language, code, className = "" }: CodeBlockProps) {
 
       <SyntaxHighlighter
         language={language}
-        style={resolvedTheme && resolvedTheme === "light" ? coldarkCold : coldarkDark}
+        style={syntaxStyle}
         className="!mt-0 rounded-md rounded-t-none"
         PreTag="div"
       >

@@ -19,7 +19,10 @@ export function MarkdownRenderer({ content }: { content: string }) {
 
           return match
             ? (
-                <CodeBlock language={match[1]} code={codeContent} />
+                <CodeBlock
+                  language={match[1]}
+                  code={codeContent}
+                />
               )
             : (
                 <code className={className} {...props}>
