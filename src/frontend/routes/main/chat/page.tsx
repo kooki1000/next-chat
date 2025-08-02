@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 
 import { routes } from "@/frontend/routes";
 import { useChat } from "@/hooks/use-chat";
-import { isLocalMessage } from "@/lib/validation";
+import { isLocalMessage } from "@/utils/validation";
 
 import { AssistantMessage, InputArea, UserMessage } from "./components";
 
