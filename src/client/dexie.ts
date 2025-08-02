@@ -67,7 +67,7 @@ export async function createLocalMessage({
       _id: crypto.randomUUID() as Id<"messages">,
       _creationTime: createdAt.getTime(),
       role: "user",
-      content,
+      parts: [{ type: "text", text: content }],
       userId: undefined,
       userProvidedId: crypto.randomUUID() as Id<"messages">,
       threadId: threadId as Id<"threads">,

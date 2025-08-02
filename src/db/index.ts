@@ -10,7 +10,7 @@ const localDb = new Dexie("NextChat") as Dexie & {
 
 localDb.version(1).stores({
   threads: "userProvidedId, _id, _creationTime, title, userId, createdAt, updatedAt",
-  messages: "userProvidedId, _id, _creationTime, role, content, userId, threadId, userProvidedThreadId, version, createdAt",
+  messages: "userProvidedId, _id, _creationTime, role, parts, userId, threadId, userProvidedThreadId, version, createdAt",
 });
 
 export { localDb };

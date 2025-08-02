@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 
 import { routes } from "@/frontend/routes";
 import { useChat } from "@/hooks/use-chat";
-import { isLocalMessage } from "@/lib/utils";
+import { isLocalMessage } from "@/lib/validation";
 
 import { AssistantMessage, InputArea, UserMessage } from "./components";
 
@@ -23,9 +23,7 @@ export function ChatPage() {
 
   const inputAreaRef = useRef<InputAreaHandle>(null);
 
-  // Combine local messages and AI messages
   // AI messages take priority when available (real-time streaming)
-  // Fall back to local messages for persistence
   const displayMessages = aiMessages.length > 0 ? aiMessages : localMessages;
   const isLoading = status === "submitted";
 
@@ -59,47 +57,49 @@ export function ChatPage() {
             </div>
           )
         : (
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className="space-y-6 pb-2">
-                {displayMessages?.map((message, index) => {
-                  // Handle both local messages and AI messages
-                  const messageKey = isLocalMessage(message) ? message.userProvidedId : index;
-                  return (
-                    <div key={messageKey} className="space-y-4">
-                      {message.role === "user"
-                        ? (
-                            <UserMessage content={message.content} />
-                          )
-                        : (
-                            <AssistantMessage content={message.content} />
-                          )}
-                    </div>
-                  );
-                })}
+            <div className="flex-1 overflow-y-auto">
+              <div className="min-h-full px-8 py-4 md:px-12">
+                <div className="mx-auto max-w-3xl space-y-6">
+                  {displayMessages?.map((message, index) => {
+                    // Handle both local messages and AI messages
+                    const messageKey = isLocalMessage(message) ? message.userProvidedId : index;
+                    return (
+                      <div key={messageKey} className="space-y-4">
+                        {message.role === "user"
+                          ? (
+                              <UserMessage parts={message.parts} />
+                            )
+                          : (
+                              <AssistantMessage parts={message.parts} />
+                            )}
+                      </div>
+                    );
+                  })}
 
-                {isLoading && (
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-sm font-medium text-white">
-                      AI
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Loader className="h-4 w-4 animate-spin" />
-                        <span className="text-sm text-muted-foreground">AI is thinking...</span>
+                  {isLoading && (
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-sm font-medium text-white">
+                        AI
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Loader className="h-4 w-4 animate-spin" />
+                          <span className="text-sm text-muted-foreground">AI is thinking...</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {error && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
-                    <p className="text-sm">
-                      Failed to get AI response:
-                      {" "}
-                      {error.message}
-                    </p>
-                  </div>
-                )}
+                  {error && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+                      <p className="text-sm">
+                        Failed to get AI response:
+                        {" "}
+                        {error.message}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

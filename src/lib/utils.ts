@@ -1,6 +1,5 @@
 import type { ClassValue } from "clsx";
 import type { Result } from "neverthrow";
-import type { Message } from "@/types";
 
 import { clsx } from "clsx";
 import { toast } from "sonner";
@@ -17,25 +16,13 @@ export function logError(type: string, message: string, originalError?: unknown)
 /**
  * Utility function to handle Result errors on the client side.
  * Logs the error, shows a toast notification, and returns null if error.
- *
- * @param result - The Result object to handle
- * @param options - Configuration options for error handling
- * @param options.title - Title for the error toast
- * @param options.description - Custom description for the toast (defaults to error.message)
- * @param options.onRetry - Optional retry action
- * @param options.showRetry - Whether to show the retry button (defaults to true if onRetry is provided)
- * @returns The value if Ok, null if Err
  */
 export function handleClientResult<T, E extends { type: string; message: string; originalError?: unknown }>(
   result: Result<T, E>,
   options: {
-    /** Title for the error toast */
     title: string;
-    /** Custom description for the toast (defaults to error.message) */
     description?: string;
-    /** Optional retry action */
     onRetry?: () => void;
-    /** Whether to show the retry button (defaults to true if onRetry is provided) */
     showRetry?: boolean;
   },
 ): T | null {
@@ -59,13 +46,83 @@ export function handleClientResult<T, E extends { type: string; message: string;
   );
 }
 
-export function isLocalMessage(message: any): message is Message {
-  return (
-    typeof message === "object"
-    && message !== null
-    && "_id" in message
-    && "_creationTime" in message
-    && "userProvidedId" in message
-    && "version" in message
-  );
+export function getFileExtension(lang: string): string {
+  // First, map common language names directly to their extensions
+  const directLanguageExtensions: Record<string, string> = {
+    javascript: "js",
+    jsx: "jsx",
+    typescript: "ts",
+    tsx: "tsx",
+    python: "py",
+    java: "java",
+    php: "php",
+    ruby: "rb",
+    go: "go",
+    rust: "rs",
+    html: "html",
+    css: "css",
+    json: "json",
+    xml: "xml",
+    sql: "sql",
+    shell: "sh",
+    bash: "sh",
+  };
+
+  const lowerLang = lang.toLowerCase();
+  if (directLanguageExtensions[lowerLang]) {
+    return directLanguageExtensions[lowerLang];
+  }
+
+  // For languages that need mapping
+  const extensionMap: Record<string, string> = {
+    javascript: "js",
+    jsx: "jsx",
+    typescript: "ts",
+    tsx: "tsx",
+    python: "py",
+    java: "java",
+    php: "php",
+    ruby: "rb",
+    go: "go",
+    rust: "rs",
+    html: "html",
+    css: "css",
+    json: "json",
+    xml: "xml",
+    sql: "sql",
+    shell: "sh",
+    bash: "sh",
+    csharp: "cs",
+    cpp: "cpp",
+    c: "c",
+    swift: "swift",
+    kotlin: "kt",
+    scala: "scala",
+    scss: "scss",
+    sass: "sass",
+    less: "less",
+    yaml: "yaml",
+    yml: "yml",
+    markdown: "md",
+    powershell: "ps1",
+    dockerfile: "dockerfile",
+    r: "r",
+    matlab: "m",
+    perl: "pl",
+    lua: "lua",
+    dart: "dart",
+    vue: "vue",
+    svelte: "svelte",
+    solidity: "sol",
+    haskell: "hs",
+    clojure: "clj",
+    erlang: "erl",
+    elixir: "ex",
+    fsharp: "fs",
+    ocaml: "ml",
+    nim: "nim",
+    zig: "zig",
+  };
+
+  return extensionMap[lang.toLowerCase()] || "txt";
 }

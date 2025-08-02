@@ -1,4 +1,6 @@
 /* eslint-disable react/no-array-index-key */
+import type { UIMessagePart } from "@/types";
+
 import {
   Copy,
   RotateCcw,
@@ -6,57 +8,29 @@ import {
   ThumbsUp,
 } from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-export function AssistantMessage({ content }: { content: string }) {
-  return (
-    <div className="flex items-start gap-3">
-      <Avatar className="h-8 w-8">
-        <AvatarImage src="/placeholder.svg?height=32&width=32" />
-        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">AI</AvatarFallback>
-      </Avatar>
+import { MarkdownRenderer } from "./MarkdownRenderer";
+import { ReasoningDisplay } from "./ReasoningDisplay";
 
+export function AssistantMessage({ parts }: { parts: Array<UIMessagePart> }) {
+  return (
+    <div>
       {/* Message Content */}
       <div className="flex-1 space-y-4">
         <div className="prose prose-sm max-w-none dark:prose-invert">
-          {content.split("\n").map((paragraph, index) => {
-            if (paragraph.trim() === "")
-              return null;
+          {parts.map((part, index) => {
+            // Handle different part types
+            switch (part.type) {
+              case "text":
+                return <MarkdownRenderer key={index} content={part.text} />;
 
-            // Handle bold text
-            if (paragraph.startsWith("**") && paragraph.endsWith("**")) {
-              return (
-                <h3 key={index} className="mt-4 mb-2 text-base font-semibold">
-                  {paragraph.slice(2, -2)}
-                </h3>
-              );
+              case "reasoning":
+                return <ReasoningDisplay key={index} index={index} part={part} />;
+
+              default:
+                return null;
             }
-
-            // Handle bullet points
-            if (paragraph.startsWith("• ")) {
-              return (
-                <div key={index} className="mb-2 ml-4">
-                  <span className="font-medium">
-                    {paragraph.slice(2).split(":")[0]}
-                    :
-                  </span>
-                  {paragraph.slice(2).includes(":") && (
-                    <span className="ml-1">{paragraph.slice(2).split(":").slice(1).join(":")}</span>
-                  )}
-                </div>
-              );
-            }
-
-            return (
-              <p key={index} className="mb-3 leading-relaxed">
-                {paragraph}
-              </p>
-            );
           })}
         </div>
 

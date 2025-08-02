@@ -91,7 +91,7 @@ export function useSendInitialMessage() {
         mutation: createClientMessage,
         errorMessage: "Something went wrong while creating the message",
         args: {
-          content: prompt,
+          parts: [{ type: "text", text: prompt }],
           userProvidedId: crypto.randomUUID(),
           userProvidedThreadId: threadId,
           createdAt: createdAt.toISOString(),

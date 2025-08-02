@@ -8,10 +8,6 @@ import "server-only";
 /**
  * Utility function to handle Result errors in a consistent way.
  * Logs the error and throws an HTTPException.
- *
- * @param result - The Result object to handle
- * @returns The value if the result is Ok
- * @throws HTTPException if the result is Err
  */
 export function handleServerResult<T, E extends { type: string; message: string; code?: number; originalError?: unknown }>(
   result: Result<T, E>,

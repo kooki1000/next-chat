@@ -9,6 +9,9 @@ import {
   WifiOff,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
 
 const features = [
   {
@@ -73,7 +76,7 @@ export function SignUpPage() {
 
             <div className="space-y-6">
               {features.map((feature, index) => (
-              // eslint-disable-next-line react/no-array-index-key
+                // eslint-disable-next-line react/no-array-index-key
                 <div key={index} className="flex gap-4">
                   <div className="flex-shrink-0">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
@@ -91,8 +94,22 @@ export function SignUpPage() {
         </aside>
 
         {/* Sign Up Form */}
-        <main className="flex flex-1 items-center justify-center p-8">
+        <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
           <SignUp />
+          <div className="text-center text-sm text-muted-foreground">
+            By continuing, you agree to our
+            {" "}
+            <Button variant="link" className="h-auto p-0 text-xs underline" asChild>
+              <Link href="/terms-of-service" target="_blank">Terms of Service</Link>
+            </Button>
+            {" "}
+            and
+            {" "}
+            <Button variant="link" className="h-auto p-0 text-xs underline" asChild>
+              <Link href="/privacy-policy" target="_blank">Privacy Policy</Link>
+            </Button>
+            .
+          </div>
         </main>
       </div>
     </div>

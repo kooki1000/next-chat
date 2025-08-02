@@ -44,15 +44,13 @@ export function InputArea({ ref }: InputAreaProps) {
   return (
     <div className="flex-shrink-0 border-t p-4">
       <div className="mx-auto w-full max-w-3xl">
-        <form onSubmit={e => e.preventDefault()}>
-          <InputBox
-            ref={textareaRef}
-            value={input}
-            onChange={setInput}
-            onSend={handleSendMessage}
-            disabled={isLoading}
-          />
-        </form>
+        <InputBox
+          ref={textareaRef}
+          value={input}
+          onChange={setInput}
+          onSend={handleSendMessage}
+          disabled={isLoading}
+        />
 
         <div className="mt-3 flex items-center justify-between">
           <ModelSelector />
