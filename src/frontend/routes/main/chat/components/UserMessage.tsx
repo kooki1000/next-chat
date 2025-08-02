@@ -1,7 +1,7 @@
 import type { UIMessagePart } from "@/types";
 
 export function UserMessage({ parts }: { parts: Array<UIMessagePart> }) {
-  const isInvalid = parts.length === 0 || parts[0].type !== "text";
+  const isInvalid = parts.length === 0 || parts[0]?.type !== "text";
   return (
     <div className="flex justify-end">
       <div className="prose prose-sm max-w-none dark:prose-invert">

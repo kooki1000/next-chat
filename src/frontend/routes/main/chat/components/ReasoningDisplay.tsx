@@ -15,7 +15,7 @@ export function ReasoningDisplay({ index, part }: { index: number; part: Reasoni
             if (paragraph.trim() === "")
               return null;
             // eslint-disable-next-line react/no-array-index-key
-            return <p key={pIndex} className="m-0 text-sm text-muted-foreground last:mb-0">{paragraph}</p>;
+            return <p key={`paragraph-${pIndex}`} className="m-0 text-sm text-muted-foreground last:mb-0">{paragraph}</p>;
           })}
 
           {part.state === "done" && (

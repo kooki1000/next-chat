@@ -10,6 +10,7 @@ import * as z from "zod/v4";
 import { api } from "@/convex/_generated/api";
 import { handleServerResult } from "@/lib/logger";
 
+import { isValidMessagePart } from "@/lib/validation";
 import { checkAuthStatus } from "@/server/auth";
 import { getThreadById } from "@/server/threads";
 import { getUserByExternalId } from "@/server/users";
@@ -45,12 +46,9 @@ export const chatsRouter = new Hono()
           try {
             await fetchMutation(api.messages.createServerMessage, {
               parts: result.content
-                .filter(
-                  (part): part is { text: string; type: "text" | "reasoning" } =>
-                    (part.type === "text" || part.type === "reasoning") && typeof (part as any).text === "string",
-                )
+                .filter(isValidMessagePart)
                 .map(part => ({
-                  text: (part as any).text,
+                  text: part.text,
                   type: part.type,
                 })),
               userId: user?._id,

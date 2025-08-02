@@ -1,6 +1,5 @@
 import type { ClassValue } from "clsx";
 import type { Result } from "neverthrow";
-import type { Message } from "@/types";
 
 import { clsx } from "clsx";
 import { toast } from "sonner";
@@ -47,17 +46,6 @@ export function handleClientResult<T, E extends { type: string; message: string;
   );
 }
 
-export function isLocalMessage(message: any): message is Message {
-  return (
-    typeof message === "object"
-    && message !== null
-    && "_id" in message
-    && "_creationTime" in message
-    && "userProvidedId" in message
-    && "version" in message
-  );
-}
-
 export function getFileExtension(lang: string): string {
   // First, map common language names directly to their extensions
   const directLanguageExtensions: Record<string, string> = {
@@ -88,13 +76,25 @@ export function getFileExtension(lang: string): string {
   // For languages that need mapping
   const extensionMap: Record<string, string> = {
     javascript: "js",
+    jsx: "jsx",
     typescript: "ts",
+    tsx: "tsx",
     python: "py",
+    java: "java",
+    php: "php",
+    ruby: "rb",
+    go: "go",
+    rust: "rs",
+    html: "html",
+    css: "css",
+    json: "json",
+    xml: "xml",
+    sql: "sql",
+    shell: "sh",
+    bash: "sh",
     csharp: "cs",
     cpp: "cpp",
     c: "c",
-    ruby: "rb",
-    rust: "rs",
     swift: "swift",
     kotlin: "kt",
     scala: "scala",
@@ -104,8 +104,6 @@ export function getFileExtension(lang: string): string {
     yaml: "yaml",
     yml: "yml",
     markdown: "md",
-    bash: "sh",
-    shell: "sh",
     powershell: "ps1",
     dockerfile: "dockerfile",
     r: "r",
