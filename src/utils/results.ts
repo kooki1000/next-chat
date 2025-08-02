@@ -3,7 +3,9 @@ import type { Result } from "neverthrow";
 import { HTTPException } from "hono/http-exception";
 import { toast } from "sonner";
 
-import { logError } from "@/lib/utils";
+export function logError(type: string, message: string, originalError?: unknown): void {
+  console.error(`${type} error: ${message}`, originalError);
+}
 
 /**
  * Utility function to handle Result errors in a consistent way.
