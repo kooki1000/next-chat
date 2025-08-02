@@ -8,12 +8,11 @@ import { Hono } from "hono";
 import * as z from "zod/v4";
 
 import { api } from "@/convex/_generated/api";
-import { handleServerResult } from "@/lib/logger";
-
-import { isValidMessagePart } from "@/lib/validation";
 import { checkAuthStatus } from "@/server/auth";
 import { getThreadById } from "@/server/threads";
 import { getUserByExternalId } from "@/server/users";
+import { handleServerResult } from "@/utils/results";
+import { isValidMessagePart } from "@/utils/validation";
 
 const createChatSchema = z.object({
   threadId: z.string(),

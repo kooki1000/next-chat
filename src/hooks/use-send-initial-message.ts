@@ -13,7 +13,7 @@ import { api } from "@/convex/_generated/api";
 import { routes } from "@/frontend/routes";
 import { DEFAULT_THREAD_TITLE } from "@/lib/constants";
 import { createMessageSchema } from "@/lib/schemas";
-import { handleClientResult } from "@/lib/utils";
+import { handleClientResult } from "@/utils/results";
 
 /**
  * Custom hook for sending messages in the chat application.
