@@ -1,3 +1,5 @@
+**IMPORTANT: First consult the Serena documentation files in the `.serena` folder to understand the project structure, conventions, and development workflows. These files provide the most up-to-date information about the project.**
+
 This is a Next.js v15-based repository for an AI chat application similar to ChatGPT or Claude. It features a local-first experience with a built-in React Router SPA (`src/frontend`) and uses `convex` as the backend (`convex` folder). The project uses `pnpm` as the package manager.
 
 ## Code Standards
@@ -60,17 +62,5 @@ This is a Next.js v15-based repository for an AI chat application similar to Cha
 5. **Linting and Formatting**:
    - Use ESLint for linting (`pnpm lint`).
    - Follow the rules defined in `eslint.config.js`.
-
-6. **Documentation**:
-   - Document public APIs and complex logic.
-   - Update the `README.md` file for significant changes.
-
-7. **Testing**:
-   - Write unit tests for new functionality.
-   - Use table-driven tests where applicable.
-
-8. **Contributing**:
-   - Maintain existing code structure and organization.
-   - Suggest changes to the `docs/` folder when appropriate.
 
 By following these guidelines, you can contribute effectively to the `next-chat` project and maintain a high standard of code quality.

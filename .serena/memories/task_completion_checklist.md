@@ -30,6 +30,6 @@ Before considering a task complete, ensure you've gone through this checklist:
 
 ## Git Workflow
 
-- [ ] **Branch Naming**: Used appropriate branch naming (e.g., `feature/`, `bugfix/`, `refactor/`)
+- [ ] **Branch Naming**: Used appropriate branch naming (e.g., `feat/`, `fix/`, `refactor/`)
 - [ ] **Commit Messages**: Used clear and descriptive commit messages
 - [ ] **Pull Request**: Created a pull request with a descriptive title and description
