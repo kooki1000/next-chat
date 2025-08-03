@@ -1,4 +1,4 @@
-**IMPORTANT: First consult the Serena documentation files in the `.serena` folder to understand the project structure, conventions, and development workflows. These files provide the most up-to-date information about the project.**
+**IMPORTANT: First consult the Serena documentation files in the `.serena` folder, especially `project_overview.md` and `code_style_and_conventions.md`, to understand the project structure, conventions, and development workflows. These files provide the most up-to-date information about the project.**
 
 This is a Next.js v15-based repository for an AI chat application similar to ChatGPT or Claude. It features a local-first experience with a built-in React Router SPA (`src/frontend`) and uses `convex` as the backend (`convex` folder). The project uses `pnpm` as the package manager.
 
