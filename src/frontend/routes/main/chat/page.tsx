@@ -1,14 +1,27 @@
-import type { InputAreaHandle } from "./components";
+import type { InputAreaRef } from "@/frontend/routes/main/chat/components/InputArea";
 
 import { Loader } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import { Message, MessageContent } from "@/components/ai-elements/message";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@/components/ai-elements/reasoning";
+import { Response } from "@/components/ai-elements/response";
 import { routes } from "@/frontend/routes";
+
 import { useChat } from "@/hooks/use-chat";
 import { isLocalMessage } from "@/utils/validation";
 
-import { AssistantMessage, InputArea, UserMessage } from "./components";
+import { InputArea } from "./components/InputArea";
 
 export function ChatPage() {
   const navigate = useNavigate();
@@ -21,7 +34,7 @@ export function ChatPage() {
     localMessages,
   } = useChat();
 
-  const inputAreaRef = useRef<InputAreaHandle>(null);
+  const inputAreaRef = useRef<InputAreaRef | null>(null);
 
   // AI messages take priority when available (real-time streaming)
   const displayMessages = aiMessages.length > 0 ? aiMessages : localMessages;
@@ -57,51 +70,78 @@ export function ChatPage() {
             </div>
           )
         : (
-            <div className="flex-1 overflow-y-auto">
-              <div className="min-h-full px-8 py-4 md:px-12">
-                <div className="mx-auto max-w-3xl space-y-6">
-                  {displayMessages?.map((message, index) => {
-                    // Handle both local messages and AI messages
-                    const messageKey = isLocalMessage(message) ? message.userProvidedId : index;
-                    return (
-                      <div key={messageKey} className="space-y-4">
-                        {message.role === "user"
-                          ? (
-                              <UserMessage parts={message.parts} />
-                            )
-                          : (
-                              <AssistantMessage parts={message.parts} />
-                            )}
-                      </div>
-                    );
-                  })}
+            <Conversation className="flex-1">
+              <ConversationContent>
+                {displayMessages?.map((message, index) => {
+                  // Handle both local messages and AI messages
+                  const messageKey = isLocalMessage(message) ? message.userProvidedId : index;
+                  return (
+                    <Message
+                      key={messageKey}
+                      from={message.role as "user" | "assistant" | "system"}
+                      className="w-full [&>div]:w-full [&>div]:max-w-none"
+                    >
+                      <MessageContent>
+                        {message.parts.map((part, partIndex) => {
+                          const partKey = `${messageKey}-${part.type}-${partIndex}`;
+                          switch (part.type) {
+                            case "text":
+                              return (
+                                <Response key={partKey}>
+                                  {part.text}
+                                </Response>
+                              );
 
-                  {isLoading && (
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-sm font-medium text-white">
-                        AI
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <Loader className="h-4 w-4 animate-spin" />
-                          <span className="text-sm text-muted-foreground">AI is thinking...</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                            case "reasoning":
+                              return (
+                                <Reasoning
+                                  key={partKey}
+                                  className="w-full"
+                                  isStreaming={status === "streaming"}
+                                >
+                                  <ReasoningTrigger />
+                                  <ReasoningContent>
+                                    {part.text}
+                                  </ReasoningContent>
+                                </Reasoning>
+                              );
 
-                  {error && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
-                      <p className="text-sm">
-                        Failed to get AI response:
-                        {" "}
-                        {error.message}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+                            default:
+                              return null;
+                          }
+                        })}
+                      </MessageContent>
+                    </Message>
+                  );
+                })}
+
+                {isLoading && (
+                  <Message from="assistant" className="w-full [&>div]:w-full [&>div]:max-w-none">
+                    <MessageContent>
+                      <div className="flex items-center gap-2">
+                        <Loader className="h-4 w-4 animate-spin" />
+                        <span className="text-sm text-muted-foreground">AI is thinking...</span>
+                      </div>
+                    </MessageContent>
+                  </Message>
+                )}
+
+                {error && (
+                  <Message from="assistant" className="w-full [&>div]:w-full [&>div]:max-w-none">
+                    <MessageContent>
+                      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+                        <p className="text-sm">
+                          Failed to get AI response:
+                          {" "}
+                          {error.message}
+                        </p>
+                      </div>
+                    </MessageContent>
+                  </Message>
+                )}
+              </ConversationContent>
+              <ConversationScrollButton />
+            </Conversation>
           )}
 
       {/* Input Area */}
