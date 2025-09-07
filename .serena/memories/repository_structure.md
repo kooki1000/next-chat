@@ -27,6 +27,16 @@ The repository is organized with the following structure:
 
 - `components/`: Shared components used across the app
   - `ui/`: UI components (shadcn/ui)
+  - `ai-elements/`: Vercel AI Elements components for chat interface
+    - `conversation.tsx`: Chat conversation container with auto-scroll
+    - `message.tsx`: Individual message components
+    - `prompt-input.tsx`: AI-optimized input components
+    - `reasoning.tsx`: Collapsible reasoning display
+    - `response.tsx`: Streaming response renderer
+    - `loader.tsx`: Loading indicators
+    - And other AI-specific components...
+  - `InputBox.tsx`: General purpose input component
+  - `ModelSelector.tsx`: AI model selection component
 
 - `hooks/`: Custom React hooks for state and side effects
   - `use-chat.ts`: Chat functionality hook

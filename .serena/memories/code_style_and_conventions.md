@@ -19,11 +19,13 @@
 - Follow the rules of hooks (only call hooks at the top level)
 - Use named exports for components
 - Use TypeScript for prop types
+- **AI Elements**: Prefer AI Elements components for chat-related UI over custom implementations
 
 ## File Structure
 
 - Components should be placed in the appropriate directory based on their scope:
   - Common/reusable components in `src/components/`
+  - AI Elements components in `src/components/ai-elements/`
   - Page-specific components in their respective route folders
 - Hooks should be placed in `src/hooks/`
 - Constants and utility functions in `src/lib/`
