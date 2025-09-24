@@ -147,6 +147,19 @@ async function messagesByUserId(ctx: QueryCtx, userId: Id<"users">) {
     .collect();
 }
 
+export const updateServerMessage = zodMutation({
+  args: {
+    messageId: zid("messages"),
+    parts: partsSchema,
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.messageId, {
+      parts: args.parts,
+    });
+    return args.messageId;
+  },
+});
+
 async function insertMessage(
   ctx: MutationCtx,
   message: WithoutSystemFields<Doc<"messages">>,
