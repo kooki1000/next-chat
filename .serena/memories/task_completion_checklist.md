@@ -14,6 +14,7 @@ Before considering a task complete, ensure you've gone through this checklist:
 - [ ] **Error Handling**: Proper error handling is implemented
 - [ ] **Edge Cases**: All edge cases are considered
 - [ ] **Performance**: Code is optimized and doesn't cause performance issues
+- [ ] **AI Elements Usage**: Used appropriate AI Elements components for chat functionality
 
 ## Local Testing
 
